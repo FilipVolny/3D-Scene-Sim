@@ -1,0 +1,11 @@
+scene width:600 height:600 ambient_light:0.5
+camera width:2 height:2 forward:0,1,0 up:0,0,1
+
+material name:"mat1" color:1,0,0 diffusion:0.5 specularity:0.5 glossiness:10
+material name:"mat2" color:0,1,0 diffusion:0.25 specularity:0.2 glossiness:50
+
+solids(
+sphere material:"mat1" origin:0,100,0 size:50
+plane material:"mat2" origin:0,800,0 normal_vector:0,-1,0
+)
+
