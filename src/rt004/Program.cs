@@ -6,6 +6,14 @@ using System.Collections.Generic;
 
 namespace rt004;
 
+/* TODO:
+ * CP1:
+ * Finish config
+ * CP2:
+ * Phong, glossiness is doing weird things
+ * CP3
+ */
+
 internal class Program
 {
     public struct Ray
