@@ -2,17 +2,10 @@
 using OpenTK.Mathematics;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
+using Microsoft.VisualBasic;
 //using System.Numerics;
 
 namespace rt004;
-
-/* TODO:
- * CP1:
- * Finish config
- * CP2:
- * Phong, glossiness is doing weird things
- * CP3
- */
 
 internal class Program
 {
@@ -23,7 +16,7 @@ internal class Program
         public Ray(Vector3d origin, Vector3d direction )
         {
             Origin = origin;
-            Direction = direction;
+            Direction = direction.Normalized();
         }
     }
     public class Material
@@ -32,13 +25,16 @@ internal class Program
         public double DiffuseCoeficient { get; set; }
         public double SpecularCoeficient { get; set; }
         public double Glossiness { get; set; }
+        public double KR { get; set; } //relfection coef
 
-        public Material(Vector3d color, double diffuseCoeficient, double specularCoeficient, double glossiness)
+
+        public Material(Vector3d color, double diffuseCoeficient, double specularCoeficient, double glossiness, double reflectionCoef)
         {
             Color = color;
             DiffuseCoeficient = diffuseCoeficient;
             SpecularCoeficient = specularCoeficient;
             Glossiness = glossiness;
+            KR = reflectionCoef;
         }
     }
     public class LightSource
@@ -58,7 +54,7 @@ internal class Program
 
     public static class Phong
     {
-        public static Vector3d Compute(List<LightSource> lightSources, ISolid solid, Vector3d intersectionPoint, Ray ray, double ambientCoeficient) 
+        public static Vector3d Compute(List<LightSource> lightSources, ISolid solid, List<ISolid> solids, Vector3d intersectionPoint, Ray ray, double ambientCoeficient) 
         {
             //ambient light
             Vector3d Ea = solid.Material.Color * ambientCoeficient;
@@ -67,17 +63,69 @@ internal class Program
 
             foreach (LightSource lightSource in lightSources)
             {
-                //diffuse component
-                Vector3d Ed = lightSource.Intensity * solid.Material.Color * solid.Material.DiffuseCoeficient * ( Vector3d.Dot(lightSource.Direction, normal) );
-                
-                //specular component
-                Vector3d reflection = 2 * normal * ( Vector3d.Dot( normal, lightSource.Direction) ) - lightSource.Direction;
-                Vector3d Es = lightSource.Intensity * lightSource.Color * solid.Material.SpecularCoeficient * Math.Pow(Vector3d.Dot( reflection.Normalized(), ray.Direction.Normalized() ), solid.Material.Glossiness );
+                if(!Shadow(solid,intersectionPoint, lightSource, solids))
+                {
+                    //diffuse component
+                    double dotDiffusion = Vector3d.Dot(lightSource.Direction, normal);
+                    Vector3d Ed = lightSource.Intensity * solid.Material.Color * solid.Material.DiffuseCoeficient * (dotDiffusion > -1.0e-6 ? dotDiffusion : 0); ;
 
-                Ea += Ed + Es;
+                    //specular component
+                    double dotReflection = Vector3d.Dot((2 * normal * (Vector3d.Dot(normal, lightSource.Direction)) - lightSource.Direction).Normalized(), ray.Direction);
+                    Vector3d Es = lightSource.Intensity * lightSource.Color * solid.Material.SpecularCoeficient * Math.Pow((dotReflection > 0 ? dotReflection : 0), solid.Material.Glossiness);
+
+                    Ea += Ed + Es;
+                }
             }
             return Ea;
         }
+
+        public static bool Shadow(ISolid sourceSolid, Vector3d point, LightSource light, List<ISolid> solids) //directional light
+        {
+            bool intersects = false;
+            Ray shadowRay = new Ray(point, -(light.Direction));
+            foreach(ISolid solid in solids)
+            {
+                if (solid != sourceSolid)
+                {
+                    double? intersection = solid.Intersection(shadowRay);
+                    if (intersection is not null)
+                    {
+                        intersects = true;
+                    }
+                }
+            }
+            return intersects;
+        }
+
+        public static Vector3d Shade(Scene scene, Ray ray, int depth, int maxdepth)
+        {
+
+            (ISolid?, double?) intersection = Camera.ThrowRay(ray, scene.Solids);
+            if (intersection.Item1 == null)
+            {
+                return new Vector3d(0, 0, 0); //return scene background // no interscections
+            }
+
+            ISolid intersectedSolid = intersection.Item1;
+            Vector3d intersectedPoint = (Vector3d)(ray.Origin + (intersection.Item2 * ray.Direction));
+            Vector3d color = default; //result color
+
+            foreach(LightSource light in scene.LightSources)
+            {
+                color += Compute(scene.LightSources, intersectedSolid, scene.Solids, intersectedPoint, ray, 0.2);//ambient coeffient should be given 
+            }
+            if( depth > maxdepth)
+            {
+                return color;
+            }
+            if(intersectedSolid.Material.KR > 0)
+            {
+                Vector3d reflectionVector = 2 * Vector3d.Dot(intersectedSolid.GetNormal(intersectedPoint), -(ray.Direction)) * intersectedSolid.GetNormal(intersectedPoint) + ray.Direction;
+                color += intersectedSolid.Material.KR * Shade(scene, new Ray(intersectedPoint, reflectionVector), depth + 1, maxdepth);
+            }
+            return color;
+        }
+
     }
 
     public interface ISolid
@@ -159,7 +207,7 @@ internal class Program
         {
             Material = material;
             Origin = origin;
-            Vector = vector;
+            Vector = vector.Normalized();
         }
 
         public double? Intersection(Ray ray)
@@ -197,10 +245,10 @@ internal class Program
 
     public class Camera
     {
-        Vector3d Origin { get; set; } = (0, 0, 0);
-        Vector3d Forward { get; set; } = (0, 1, 0);
-        Vector3d Right { get; set; } = (1, 0, 0);
-        Vector3d Up { get; set; } = (0, 0, -1);
+        Vector3d Origin { get; set; }
+        Vector3d Forward { get; set; }
+        Vector3d Right { get; set; } = new Vector3d(1, 0, 0).Normalized();
+        Vector3d Up { get; set; }
         public double Height { get; set; }
         public double Width { get; set; }
 
@@ -209,27 +257,27 @@ internal class Program
         public Camera(Vector3d origin, Vector3d forward, Vector3d up, double height, double width) //todo rotation, up and right vector, user shouldnt be able to choose any vector as the up and right vector, they have to be perpendicular to each other
         {
             Origin = origin;
-            Forward = forward;
-            //Up = up;
-            //Right = right;
+            Forward = forward.Normalized();
+            Up = up.Normalized();
+            //Right = right.Normalized();
             Height = height;
             Width = width;
 
         }
 
-        private (ISolid?, double?) ThrowRay(Ray ray, List<ISolid> solids)
+        public static (ISolid?, double?) ThrowRay(Ray ray, List<ISolid> solids)
         {
             ISolid? result = null;
             double? t = null;
             foreach (ISolid solid in solids)
             {
                 double? tmp = solid.Intersection(ray);
-                if( tmp != null && t == null )
+                if( tmp != null && t == null && tmp > 0.6)
                 {
                     t = tmp;
                     result = solid;
                 }
-                else if ( tmp != null && t != null)
+                else if ( tmp != null && t != null && tmp > 0.6)
                 {
                     if( tmp < t )
                     {
@@ -240,7 +288,32 @@ internal class Program
             }
             return (result, t);  
         }
-
+        public static (ISolid?, double?) BounceRay(Ray ray, List<ISolid> solids, ISolid bouncedOf)
+        {
+            ISolid? result = null;
+            double? t = null;
+            foreach (ISolid solid in solids)
+            {
+                if(bouncedOf != solid)
+                {
+                    double? tmp = solid.Intersection(ray);
+                    if (tmp != null && t == null)
+                    {
+                        t = tmp;
+                        result = solid;
+                    }
+                    else if (tmp != null && t != null)
+                    {
+                        if (tmp < t)
+                        {
+                            t = tmp;
+                            result = solid;
+                        }
+                    }
+                }
+            }
+            return (result, t);
+        }
 
         private Ray GetRayFromCamera(int x, int y, int width, int height)
         {
@@ -263,7 +336,7 @@ internal class Program
                     if(intersection.Item1 != null && intersection.Item2 != null)
                     {
                         Vector3d intersectionPoint = (Vector3d)(ray.Origin + ( intersection.Item2 * ray.Direction ));
-                        pixels[x,y] = Phong.Compute( scene.LightSources, intersection.Item1, intersectionPoint, ray, scene.AmbientCoeficient );
+                        pixels[x,y] = Phong.Shade( scene, ray, 0, 10); //maxdepth todo dej si to neka jiman 
                     }
                 }
             }
@@ -383,21 +456,21 @@ internal class Program
         //Config config = new Config();
         //config.LoadFromFile("config.txt");
 
-        Scene demo = new Scene(0.2, new Camera((0,0,0), (0,1,0), (0,0,1), 2, 2), new List<ISolid>(), new List<LightSource>()); //ambientLight, camera(origin, forward, up, width, height)
+        Scene demo = new Scene(0.2, new Camera((0,0,0), (0,1,0), (0,0,-1), 2, 2), new List<ISolid>(), new List<LightSource>()); //ambientLight, camera(origin, forward, up, width, height)
 
-        Material mat1 = new Material(new Vector3d(0, 0, 1.5), 0.3, 0.5, 50); //color, diffusionCoeff, specularCoeff, glossiness 
-        Material mat3 = new Material(new Vector3d(1, 0, 0), 0.4, 0.4, 5);
-        Material mat2 = new Material(new Vector3d(0, 1, 0), 0.2, 0.3, 5);
+        Material mat1 = new Material(new Vector3d(0, 0, 1), 0.4, 0.5, 50, 0); //color, diffusionCoeff, specularCoeff, glossiness 
+        Material mat3 = new Material(new Vector3d(1, 0, 0), 0.4, 0.4, 5, 0.5);
+        Material mat2 = new Material(new Vector3d(0, 1.5, 0), 0.4, 0.3, 5, 0.5);
 
-        Plane planius = new Plane(mat3, (0, 800, -50), new Vector3d(0, 0, 1)); //material, origin, normalVector
+        Plane planius = new Plane(mat3, (0, 100, 0), new Vector3d(0, 1, 0).Normalized()); //material, origin, normalVector
         Plane planius2 = new Plane(mat1, (0, 800, 0), new Vector3d(1, 1, 0).Normalized());
 
-        Sphere spherocious = new Sphere(mat1, new Vector3d(100, 800, 100), 400); //material, origin, size
-        Sphere spherocious2 = new Sphere(mat3, new Vector3d(-40, 80, 0), 25);
-        Sphere babz = new Sphere(mat2, (-4, 40, -18), 10);
+        Sphere spherocious = new Sphere(mat1, new Vector3d(-25, 40, -10), 10); //material, origin, size
+        Sphere spherocious2 = new Sphere(mat3, new Vector3d(0, 40, 0), 10);
+        Sphere babz = new Sphere(mat2, new Vector3d(25, 40, 10), 10);
 
-        LightSource light = new LightSource((0, 0, 0), (0, 50,-100), (1, 1, 1), 1); //origin, direction, color, intensity
-        LightSource light2 = new LightSource((0, 0, 0), (0, 10, 5), (1, 0, 0), 1);
+        LightSource light = new LightSource((0, 0, 0), (-1, 0, 0), (1, 1, 1), 1); //origin, direction, color, intensity
+        LightSource light2 = new LightSource((0, 0, 0), (0, 500, 300), (1, 1, 1), 1);
 
         //demo.Solids.Add(planius);
         //demo.Solids.Add(planius2);
