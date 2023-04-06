@@ -25,16 +25,13 @@ internal class Program
         public double DiffuseCoeficient { get; set; }
         public double SpecularCoeficient { get; set; }
         public double Glossiness { get; set; }
-        public double KR { get; set; } //relfection coef
 
-
-        public Material(Vector3d color, double diffuseCoeficient, double specularCoeficient, double glossiness, double reflectionCoef)
+        public Material(Vector3d color, double diffuseCoeficient, double specularCoeficient, double glossiness)
         {
             Color = color;
             DiffuseCoeficient = diffuseCoeficient;
             SpecularCoeficient = specularCoeficient;
             Glossiness = glossiness;
-            KR = reflectionCoef;
         }
     }
     public class LightSource
@@ -118,10 +115,10 @@ internal class Program
             {
                 return color;
             }
-            if(intersectedSolid.Material.KR > 0)
+            if(intersectedSolid.Material.SpecularCoeficient > 0)
             {
                 Vector3d reflectionVector = 2 * Vector3d.Dot(intersectedSolid.GetNormal(intersectedPoint), -(ray.Direction)) * intersectedSolid.GetNormal(intersectedPoint) + ray.Direction;
-                color += intersectedSolid.Material.KR * Shade(scene, new Ray(intersectedPoint, reflectionVector), depth + 1, maxdepth);
+                color += intersectedSolid.Material.SpecularCoeficient * Shade(scene, new Ray(intersectedPoint, reflectionVector), depth + 1, maxdepth);
             }
             return color;
         }
@@ -288,6 +285,7 @@ internal class Program
             }
             return (result, t);  
         }
+        /*
         public static (ISolid?, double?) BounceRay(Ray ray, List<ISolid> solids, ISolid bouncedOf)
         {
             ISolid? result = null;
@@ -314,7 +312,7 @@ internal class Program
             }
             return (result, t);
         }
-
+        */
         private Ray GetRayFromCamera(int x, int y, int width, int height)
         {
             Ray ray = new Ray(Origin, (Forward + (x - width / 2) * (Width / width) * Right + (y - height / 2) * (Height / height) * Up).Normalized());
@@ -458,9 +456,9 @@ internal class Program
 
         Scene demo = new Scene(0.2, new Camera((0,0,0), (0,1,0), (0,0,-1), 2, 2), new List<ISolid>(), new List<LightSource>()); //ambientLight, camera(origin, forward, up, width, height)
 
-        Material mat1 = new Material(new Vector3d(0, 0, 1), 0.4, 0.5, 50, 0); //color, diffusionCoeff, specularCoeff, glossiness 
-        Material mat3 = new Material(new Vector3d(1, 0, 0), 0.4, 0.4, 5, 0.5);
-        Material mat2 = new Material(new Vector3d(0, 1.5, 0), 0.4, 0.3, 5, 0.5);
+        Material mat1 = new Material(new Vector3d(0, 0, 1), 0.4, 0.4, 50); //color, diffusionCoeff, specularCoeff, glossiness 
+        Material mat2 = new Material(new Vector3d(0, 1.5, 0), 0.4, 0.05, 5);
+        Material mat3 = new Material(new Vector3d(1, 0, 0), 0.4, 0.9, 5);
 
         Plane planius = new Plane(mat3, (0, 100, 0), new Vector3d(0, 1, 0).Normalized()); //material, origin, normalVector
         Plane planius2 = new Plane(mat1, (0, 800, 0), new Vector3d(1, 1, 0).Normalized());
