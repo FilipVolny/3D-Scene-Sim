@@ -46,11 +46,11 @@ namespace rt004
                 {
                     //diffuse component
                     double dotDiffusion = Vector3d.Dot(lightSource.Direction, normal);
-                    Vector3d Ed = lightSource.Intensity * solid.Material.Color * solid.Material.DiffuseCoeficient * (dotDiffusion > -1.0e-6 ? dotDiffusion : 0); ;
+                    Vector3d Ed = lightSource.Intensity * solid.Material.Color * solid.Material.DiffusionCoefficient * (dotDiffusion > -1.0e-6 ? dotDiffusion : 0); ;
 
                     //specular component
                     double dotReflection = Vector3d.Dot((2 * normal * (Vector3d.Dot(normal, lightSource.Direction)) - lightSource.Direction).Normalized(), ray.Direction);
-                    Vector3d Es = lightSource.Intensity * lightSource.Color * solid.Material.SpecularCoeficient * Math.Pow((dotReflection > 0 ? dotReflection : 0), solid.Material.Glossiness);
+                    Vector3d Es = lightSource.Intensity * lightSource.Color * solid.Material.SpecularCoefficient * Math.Pow((dotReflection > 0 ? dotReflection : 0), solid.Material.Glossiness);
 
                     Ea += Ed + Es;
                 }
@@ -80,7 +80,7 @@ namespace rt004
         {
 
             (ISolid?, double?) intersection = Phong.ThrowRay(ray, scene.Solids);
-            if (intersection.Item1 == null)
+            if (intersection.Item1 == null || intersection.Item2 == null)
             {
                 return new Vector3d(0, 0, 0); //return scene background // no interscections
             }
@@ -97,10 +97,10 @@ namespace rt004
             {
                 return color;
             }
-            if (intersectedSolid.Material.SpecularCoeficient > 0)
+            if (intersectedSolid.Material.SpecularCoefficient > 0)
             {
                 Vector3d reflectionVector = 2 * Vector3d.Dot(intersectedSolid.GetNormal(intersectedPoint), -(ray.Direction)) * intersectedSolid.GetNormal(intersectedPoint) + ray.Direction;
-                color += intersectedSolid.Material.SpecularCoeficient * Shade(scene, new Ray(intersectedPoint, reflectionVector), depth + 1, maxdepth);
+                color += intersectedSolid.Material.SpecularCoefficient * Shade(scene, new Ray(intersectedPoint, reflectionVector), depth + 1, maxdepth);
             }
             return color;
         }
