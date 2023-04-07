@@ -120,7 +120,7 @@ internal class Program
         //Config config = new Config();
         //config.LoadFromFile("config.txt");
 
-        Scene demo = new Scene(0.2, new Camera((0,0,0), (0,1,0), (0,0,-1), 2, 2), new List<ISolid>(), new List<LightSource>()); //ambientLight, camera(origin, forward, up, width, height)
+        Scene demo = new Scene(0.2, new Camera((0,0,0), (0,1,0), (0,0,-1), 2, 2)); //ambientLight, camera(origin, forward, up, width, height)
 
         Material mat1 = new Material(new Vector3d(0, 0, 1), 0.4, 0.4, 50); //color, diffusionCoeff, specularCoeff, glossiness 
         Material mat2 = new Material(new Vector3d(0, 1.5, 0), 0.4, 0.5, 5);
@@ -133,8 +133,8 @@ internal class Program
         Sphere spherocious2 = new Sphere(mat3, new Vector3d(0, 40, 0), 10);
         Sphere babz = new Sphere(mat2, new Vector3d(25, 40, 10), 10);
 
-        LightSource light = new LightSource((0, 0, 0), (-1, 0, 0), (1, 1, 1), 0.5); //origin, direction, color, intensity
-        LightSource light2 = new LightSource((0, 0, 0), (0, 500, 300), (1, 1, 1), 0.5);
+        DirectionLightSource light = new((-1, 0, 0), (1, 1, 1), 0.5); //origin, direction, color, intensity
+        DirectionLightSource light2 = new((0, 500, 300), (1, 1, 1), 0.5);
 
         demo.Solids.Add(planius);
         demo.Solids.Add(planius2);

@@ -33,14 +33,14 @@ namespace rt004
             }
             return (result, t);
         }
-        public static Vector3d Compute(List<LightSource> lightSources, ISolid solid, List<ISolid> solids, Vector3d intersectionPoint, Ray ray, double ambientCoeficient)
+        public static Vector3d Compute(List<ILightSource> lightSources, ISolid solid, List<ISolid> solids, Vector3d intersectionPoint, Ray ray, double ambientCoeficient)
         {
             //ambient light
             Vector3d Ea = solid.Material.Color * ambientCoeficient;
 
             Vector3d normal = solid.GetNormal(intersectionPoint).Normalized();
 
-            foreach (LightSource lightSource in lightSources)
+            foreach (DirectionLightSource lightSource in lightSources)
             {
                 if (!Shadow(solid, intersectionPoint, lightSource, solids))
                 {
@@ -58,7 +58,7 @@ namespace rt004
             return Ea;
         }
 
-        public static bool Shadow(ISolid sourceSolid, Vector3d point, LightSource light, List<ISolid> solids) //directional light
+        public static bool Shadow(ISolid sourceSolid, Vector3d point, DirectionLightSource light, List<ISolid> solids) //directional light
         {
             bool intersects = false;
             Ray shadowRay = new Ray(point, -(light.Direction));
@@ -89,7 +89,7 @@ namespace rt004
             Vector3d intersectedPoint = (Vector3d)(ray.Origin + (intersection.Item2 * ray.Direction));
             Vector3d color = default; //result color
 
-            foreach (LightSource light in scene.LightSources)
+            foreach (DirectionLightSource light in scene.LightSources)
             {
                 color += Compute(scene.LightSources, intersectedSolid, scene.Solids, intersectedPoint, ray, 0.2);//ambient coeffient should be given 
             }

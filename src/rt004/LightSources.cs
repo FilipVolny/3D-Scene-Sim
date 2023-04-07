@@ -7,16 +7,31 @@ using System.Threading.Tasks;
 
 namespace rt004
 {
-    public class LightSource
+    public interface ILightSource
     {
-        public Vector3d Origin { get; }
+        double Intensity { get; }
+        Vector3d Color { get; }
+    }
+    public class DirectionLightSource : ILightSource
+    {
         public Vector3d Direction { get; }
         public double Intensity { get; }
         public Vector3d Color { get; }
-        public LightSource(Vector3d origin, Vector3d direction, Vector3d color, double intensity)
+        public DirectionLightSource(Vector3d direction, Vector3d color, double intensity)
+        {
+            Direction = direction.Normalized();
+            Color = color;
+            Intensity = intensity;
+        }
+    }
+    public class PointLightSource : ILightSource
+    {
+        public Vector3d Origin { get; }
+        public double Intensity { get; }
+        public Vector3d Color { get; }
+        public PointLightSource(Vector3d origin, Vector3d color, double intensity)
         {
             Origin = origin;
-            Direction = direction.Normalized();
             Color = color;
             Intensity = intensity;
         }
