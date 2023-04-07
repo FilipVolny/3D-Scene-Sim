@@ -9,16 +9,16 @@ namespace rt004
 {
     public interface ISolid
     {
-        Material Material { get; set; }
+        Material Material { get; }
         double? Intersection(Ray ray);
         Vector3d GetNormal(Vector3d point);
     }
 
     public class Sphere : ISolid
     {
-        public Material Material { get; set; }
-        public Vector3d Origin { get; set; }
-        public double Size { get; set; }
+        public Material Material { get; }
+        public Vector3d Origin { get; }
+        public double Size { get; }
         public Sphere(Material material, Vector3d origin, double size)
         {
             Material = material;
@@ -63,10 +63,10 @@ namespace rt004
 
     public class Cylinder : ISolid
     {
-        public Material Material { get; set; }
-        public Vector3d Origin { get; set; }
-        public double Height { get; set; }
-        public double Width { get; set; }
+        public Material Material { get; }
+        public Vector3d Origin { get; }
+        public double Height { get; }
+        public double Width { get; }
         public Cylinder(Material material, Vector3d origin, double height, double width)
         {
             Material = material;
@@ -86,9 +86,9 @@ namespace rt004
 
     public class Plane : ISolid
     {
-        public Material Material { get; set; }
-        public Vector3d Origin { get; set; }
-        public Vector3d Vector { get; set; }
+        public Material Material { get; }
+        public Vector3d Origin { get; }
+        public Vector3d Vector { get; }
         public Plane(Material material, Vector3d origin, Vector3d vector)
         {
             Material = material;

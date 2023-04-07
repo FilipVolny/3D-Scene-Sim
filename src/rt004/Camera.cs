@@ -9,12 +9,13 @@ namespace rt004
 {
     public class Camera
     {
-        Vector3d Origin { get; set; }
-        Vector3d Forward { get; set; }
-        Vector3d Right { get; set; } = new Vector3d(1, 0, 0).Normalized();
-        Vector3d Up { get; set; }
-        public double Height { get; set; }
-        public double Width { get; set; }
+        Vector3d Origin { get; }
+        Vector3d Forward { get; }
+        Vector3d Right { get; } = new Vector3d(1, 0, 0).Normalized();
+        Vector3d Up { get; }
+        double Height { get; }
+        double Width { get; }
+        int MaxRayTracingDepth { get; set; }
 
         public Camera(Vector3d origin, Vector3d forward, Vector3d up, double height, double width) //todo rotation, up and right vector, user shouldnt be able to choose any vector as the up and right vector, they have to be perpendicular to each other
         {
@@ -24,7 +25,7 @@ namespace rt004
             //Right = right.Normalized();
             Height = height;
             Width = width;
-
+            MaxRayTracingDepth = 10;
         }
 
         private Ray GetRayFromCamera(int x, int y, int width, int height)
@@ -48,7 +49,7 @@ namespace rt004
                     if (intersection.Item1 != null && intersection.Item2 != null)
                     {
                         Vector3d intersectionPoint = (Vector3d)(ray.Origin + (intersection.Item2 * ray.Direction));
-                        pixels[x, y] = Phong.Shade(scene, ray, 0, 10); //maxdepth todo dej si to neka jiman 
+                        pixels[x, y] = Phong.Shade(scene, ray, 0, MaxRayTracingDepth);
                     }
                 }
             }

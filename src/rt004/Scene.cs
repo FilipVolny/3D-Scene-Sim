@@ -9,11 +9,11 @@ namespace rt004
 {
     public class Scene
     {
-        public double AmbientCoeficient { get; set; }
-        public Camera Camera { get; set; }
-        public Dictionary<string, Material> Materials { get; set; }
-        public List<ISolid> Solids { get; set; }
-        public List<LightSource> LightSources { get; set; }
+        public double AmbientCoeficient { get; }
+        public Camera Camera { get; }
+        public Dictionary<string, Material> Materials { get; }
+        public List<ISolid> Solids { get; }
+        public List<LightSource> LightSources { get; }
         public Scene(double ambientCoeficient, Camera camera, List<ISolid> solids, List<LightSource> lightSources)
         {
             AmbientCoeficient = ambientCoeficient;
