@@ -16,8 +16,6 @@ namespace rt004
         public double Height { get; set; }
         public double Width { get; set; }
 
-        Vector3d[,] ResultPixels;
-
         public Camera(Vector3d origin, Vector3d forward, Vector3d up, double height, double width) //todo rotation, up and right vector, user shouldnt be able to choose any vector as the up and right vector, they have to be perpendicular to each other
         {
             Origin = origin;

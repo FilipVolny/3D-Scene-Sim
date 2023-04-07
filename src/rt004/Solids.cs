@@ -64,9 +64,16 @@ namespace rt004
     public class Cylinder : ISolid
     {
         public Material Material { get; set; }
-        public double Origin { get; set; }
+        public Vector3d Origin { get; set; }
         public double Height { get; set; }
         public double Width { get; set; }
+        public Cylinder(Material material, Vector3d origin, double height, double width)
+        {
+            Material = material;
+            Origin = origin;
+            Height = height;
+            Width = width;
+        }
         public double? Intersection(Ray ray)
         {
             return 0;
