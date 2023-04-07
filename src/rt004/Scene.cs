@@ -9,17 +9,17 @@ namespace rt004
 {
     public class Scene
     {
-        public double AmbientCoeficient { get; }
+        public double AmbientCoefficient { get; }
         public Camera Camera { get; }
         public Dictionary<string, Material> Materials { get; }
         public List<ISolid> Solids { get; }
         public List<LightSource> LightSources { get; }
-        public Scene(double ambientCoeficient, Camera camera, List<ISolid> solids, List<LightSource> lightSources)
+        public Scene(double ambientCoefficient, Camera camera)
         {
-            AmbientCoeficient = ambientCoeficient;
+            AmbientCoefficient = ambientCoefficient;
             Camera = camera;
-            Solids = solids;
-            LightSources = lightSources;
+            Solids = new List<ISolid>();
+            LightSources = new List<LightSource>();
             Materials = new Dictionary<string, Material>();
         }
     }

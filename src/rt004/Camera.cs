@@ -28,27 +28,26 @@ namespace rt004
             MaxRayTracingDepth = 10;
         }
 
-        private Ray GetRayFromCamera(int x, int y, int width, int height)
+        private Ray GetRayFromCamera(int x, int y, int pixelWidth, int pixelHeight)
         {
-            Ray ray = new Ray(Origin, (Forward + (x - width / 2) * (Width / width) * Right + (y - height / 2) * (Height / height) * Up).Normalized());
+            Ray ray = new(Origin, (Forward + (x - pixelWidth / 2) * (Width / pixelWidth) * Right + (y - pixelHeight / 2) * (Height / pixelHeight) * Up).Normalized());
             return ray;
         }
 
-        public Vector3d[,] RayCast(Scene scene, int width, int height)
+        public Vector3d[,] RayCast(Scene scene, int pixelWidth, int pixelHeight)
         {
-            Vector3d[,] pixels = new Vector3d[width, height];
+            Vector3d[,] pixels = new Vector3d[pixelWidth, pixelHeight];
 
-            for (int x = 0; x < width; x++)
+            for (int x = 0; x < pixelWidth; x++)
             {
-                for (int y = 0; y < height; y++)
+                for (int y = 0; y < pixelHeight; y++)
                 {
-                    Ray ray = GetRayFromCamera(x, y, width, height);
+                    Ray ray = GetRayFromCamera(x, y, pixelWidth, pixelHeight);
 
                     (ISolid?, double?) intersection = Phong.ThrowRay(ray, scene.Solids);
 
                     if (intersection.Item1 != null && intersection.Item2 != null)
                     {
-                        Vector3d intersectionPoint = (Vector3d)(ray.Origin + (intersection.Item2 * ray.Direction));
                         pixels[x, y] = Phong.Shade(scene, ray, 0, MaxRayTracingDepth);
                     }
                 }
