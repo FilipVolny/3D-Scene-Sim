@@ -10,19 +10,22 @@ namespace rt004
     public class Camera
     {
         Vector3d Origin { get; }
-        Vector3d Forward { get; }
-        Vector3d Right { get; } = new Vector3d(1, 0, 0).Normalized();
-        Vector3d Up { get; }
+        Vector3d ForwardDirection { get; }
+        double Rotation { get; }
+        private Vector3d UpDirection { get; }
+        private Vector3d RightDirection { get; }
+
         double Height { get; }
         double Width { get; }
         int MaxRayTracingDepth { get; set; }
 
-        public Camera(Vector3d origin, Vector3d forward, Vector3d up, double height, double width) //todo rotation, up and right vector, user shouldnt be able to choose any vector as the up and right vector, they have to be perpendicular to each other
+        public Camera(Vector3d origin, Vector3d forwardDirection, double rotation, double height, double width) //todo rotation, up and right vector, user shouldnt be able to choose any vector as the up and right vector, they have to be perpendicular to each other
         {
             Origin = origin;
-            Forward = forward.Normalized();
-            Up = up.Normalized();
-            //Right = right.Normalized();
+            ForwardDirection = forwardDirection.Normalized();
+            Rotation = rotation;
+            UpDirection = ((new Vector3d(0,0,-1) * Math.Cos(Rotation)) + Vector3d.Cross(new Vector3d(0, 0, -1), ForwardDirection) * Math.Sin(Rotation) + ForwardDirection * Vector3d.Dot(new Vector3d(0, 0, -1), ForwardDirection) * (1 - Math.Cos(Rotation))).Normalized();
+            RightDirection = (Vector3d.Cross(UpDirection, ForwardDirection) + ForwardDirection * Vector3d.Dot(UpDirection, ForwardDirection)).Normalized();
             Height = height;
             Width = width;
             MaxRayTracingDepth = 10;
@@ -30,7 +33,7 @@ namespace rt004
 
         private Ray GetRayFromCamera(int x, int y, int pixelWidth, int pixelHeight)
         {
-            Ray ray = new(Origin, (Forward + (x - pixelWidth / 2) * (Width / pixelWidth) * Right + (y - pixelHeight / 2) * (Height / pixelHeight) * Up).Normalized());
+            Ray ray = new(Origin, (ForwardDirection + (x - pixelWidth / 2) * (Width / pixelWidth) * RightDirection + (y - pixelHeight / 2) * (Height / pixelHeight) * UpDirection).Normalized());
             return ray;
         }
 

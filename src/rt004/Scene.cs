@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static rt004.Program;
 
 namespace rt004
 {
@@ -21,6 +20,10 @@ namespace rt004
             Solids = new List<ISolid>();
             LightSources = new List<ILightSource>();
             Materials = new Dictionary<string, Material>();
+        }
+        public Scene(string configFilePath)
+        {
+
         }
     }
 }

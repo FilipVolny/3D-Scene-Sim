@@ -119,8 +119,8 @@ internal class Program
         // TODO: parse command-line arguments and/or your config file.
         //Config config = new Config();
         //config.LoadFromFile("config.txt");
-
-        Scene demo = new Scene(0.2, new Camera((0,0,0), (0,1,0), (0,0,-1), 2, 2)); //ambientLight, camera(origin, forward, up, width, height)
+        Scene sceneFromParser = new Scene("config.txt");
+        Scene demo = new Scene(0.2, new Camera((0,0,0), (0,1,0), 0, 2, 2)); //ambientLight, camera(origin, forward, up, width, height)
 
         Material mat1 = new Material(new Vector3d(0, 0, 1), 0.4, 0.4, 50); //color, diffusionCoeff, specularCoeff, glossiness 
         Material mat2 = new Material(new Vector3d(0, 1.5, 0), 0.4, 0.5, 5);
@@ -137,8 +137,7 @@ internal class Program
         DirectionLightSource light2 = new((0, 500, 300), (1, 1, 1), 0.5);
 
         demo.Solids.Add(planius);
-        demo.Solids.Add(planius2);
-        //demo.Solids.Add(new Plane(mat2, (0, 800, 0), new Vector3d(0, -1, 1).Normalized()));
+        //demo.Solids.Add(planius2);
         
         demo.Solids.Add(spherocious);
         demo.Solids.Add(spherocious2);
