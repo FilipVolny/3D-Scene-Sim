@@ -8,9 +8,11 @@ using static rt004.Program;
 
 namespace rt004
 {
+    //so yes, we apply the inverse transformation to a ray, instead of applying transformations to objects
+    // but we still need to apply a transformation matrix to the normal vector of the object
     public static class Phong
     {
-        public static (ISolid?, double?) ThrowRay(Ray ray, List<ISolid> solids)
+        /*public static (ISolid?, double?) ThrowRay(Ray ray, List<ISolid> solids)
         {
             ISolid? result = null;
             double? t = null;
@@ -31,6 +33,37 @@ namespace rt004
                     }
                 }
             }
+            return (result, t);
+        }*/
+        public static (ISolid?, double?) ThrowRay(Ray ray, Node node)
+        {
+            ISolid? result = null;
+            double? t = null;
+
+            Matrix4d transformation = node.TransformationMatrix;
+
+            //for each solid list in a node
+            if(node.Solids.Any())
+            {
+                foreach (ISolid solid in node.Solids)
+                {
+                    double? tmp = solid.Intersection(ray);
+                    if (tmp != null && t == null && tmp > 0.6)
+                    {
+                        t = tmp;
+                        result = solid;
+                    }
+                    else if (tmp != null && t != null && tmp > 0.6)
+                    {
+                        if (tmp < t)
+                        {
+                            t = tmp;
+                            result = solid;
+                        }
+                    }
+                }
+            }
+
             return (result, t);
         }
         public static Vector3d Compute(List<ILightSource> lightSources, ISolid solid, List<ISolid> solids, Vector3d intersectionPoint, Ray ray, double ambientCoeficient)
@@ -104,6 +137,5 @@ namespace rt004
             }
             return color;
         }
-
     }
 }

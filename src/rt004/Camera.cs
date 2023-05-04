@@ -19,7 +19,7 @@ namespace rt004
         double Width { get; }
         int MaxRayTracingDepth { get; set; }
 
-        public Camera(Vector3d origin, Vector3d forwardDirection, double rotation, double height, double width) //todo rotation, up and right vector, user shouldnt be able to choose any vector as the up and right vector, they have to be perpendicular to each other
+        public Camera(Vector3d origin, Vector3d forwardDirection, double rotation, double width, double height)
         {
             Origin = origin;
             ForwardDirection = forwardDirection.Normalized();

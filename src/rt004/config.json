@@ -1,0 +1,69 @@
+{
+    "scene": {
+
+        "ambientCoefficient": 0,
+
+        "camera": {
+            "origin": [0,0,0],
+            "direction": [0,1,0],
+            "rotation": 0.0,
+            "width": 600,
+            "height": 600
+        },
+
+        "materials": [
+            {
+                "name": "mat1",
+                "color": [0,0,1],
+                "diffusionCoefficient": 0.4,
+                "specularCoefficient": 0.4,
+                "glossiness": 50
+            },
+            {
+                "name": "mat2",
+                "color": [0,1,0],
+                "diffusionCoefficient": 0.4,
+                "specularCoefficient": 0.5,
+                "glossiness": 5
+            }
+        ],
+
+        "node": {
+            "transformationMatrix": [
+                [1,0,0,0],
+                [0,1,0,0],
+                [0,0,1,0],
+                [0,0,0,1]
+            ],
+            "solids": [
+                {
+                    "type": "sphere",
+                    "materialName": "mat1",
+                    "origin": [0,0,0],
+                    "size": 50
+                }
+            ]
+        },
+
+        "lightSources": [
+            {
+                "type": "directional",
+                "direction": [-1,0,0],
+                "color": [1,1,1],
+                "intensity": 0.5
+            },
+            {
+                "type": "directional",
+                "direction": [0,500,300],
+                "color": [1,1,1],
+                "intensity": 0.5
+            }
+        ]
+    },
+
+    "imageConfig": {
+        "outputFile": "asd",
+        "format": "pfm",
+        "size": [600, 600]
+    }
+}

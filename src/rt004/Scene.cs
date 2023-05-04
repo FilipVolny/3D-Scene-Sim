@@ -21,8 +21,14 @@ namespace rt004
             LightSources = new List<ILightSource>();
             Materials = new Dictionary<string, Material>();
         }
-        public Scene(string configFilePath)
+        public Scene(double ambientCoefficient, Camera camera, Dictionary<string, Material> materials, Node root, List<ILightSource> lightSources)
         {
+            AmbientCoefficient = ambientCoefficient;
+            Camera = camera;
+            Materials = materials;
+            LightSources = lightSources;
+            //todo root
+            Solids = new(); //delete
 
         }
     }
