@@ -112,5 +112,4 @@ namespace rt004
             return Vector;
         }
     }
-
 }

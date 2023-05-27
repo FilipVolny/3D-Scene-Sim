@@ -66,7 +66,28 @@ internal class Program
         Scene demo = JsonParser.ParseJsonConfig("config.json");
 
         Vector3d[,] grid = demo.Camera.RayCast(demo, fi.Width/5, fi.Height/5);
+        
 
+        static void ParallelImage(FloatImage image, Vector3d[,] grid)
+        {
+
+            var offsets = Enumerable.Range(0, 8);
+            Parallel.ForEach(offsets, FillImagePart =>
+            {
+                for(int y =  0; y < image.Height / 8; ++y)
+                {
+                    for (int x = 0; x < image.Width; x++)
+                    {
+                        float[] color = new float[3];
+                        color[0] = (float)grid[x / 5, y / 5].X;
+                        color[1] = (float)grid[x / 5, y / 5].Y;
+                        color[2] = (float)grid[x / 5, y / 5].Z;
+                        image.PutPixel(x, y, color);
+                    }
+                }
+            });
+        }
+        /*
         for (int y = 0; y < fi.Height; y++)
         {
             for (int x = 0; x < fi.Width; x++)
@@ -79,7 +100,8 @@ internal class Program
                 fi.PutPixel(x, y, color);
             }
         }
-        
+        */
+        ParallelImage(fi, grid);
         string fileName = "config.pfm";
         /* HDR image.
         FloatImage fi = new FloatImage(wid, hei, 3);
