@@ -1,5 +1,6 @@
 ﻿using Util;
 using OpenTK.Mathematics;
+using static System.Net.Mime.MediaTypeNames;
 //using System.Numerics;
 
 namespace rt004;
@@ -27,8 +28,8 @@ internal class Program
         // TODO: parse command-line arguments and/or your config file.
         //Config config = new Config();
         //config.LoadFromFile("config.txt");
-        /*
-        Scene sceneFromParser = new Scene("config.txt");
+        
+        //Scene sceneFromParser = new Scene("config.txt");
         
         Scene demo = new Scene(0.2, new Camera((0,0,0), (0,1,0), 0, 2, 2)); //ambientLight, camera(origin, forward, up, width, height)
 
@@ -61,47 +62,24 @@ internal class Program
         Sphere Bleep = new Sphere(plush, new(25, 40, -25), 5);
 
         demo.Solids.Add(Bleep);
-        */
-        FloatImage fi = new FloatImage(1200, 1200, 3);
-        Scene demo = JsonParser.ParseJsonConfig("config.json");
-
-        Vector3d[,] grid = demo.Camera.RayCast(demo, fi.Width/5, fi.Height/5);
         
+        FloatImage fi = new FloatImage(1200, 1200, 3);
+        //Scene demo = JsonParser.ParseJsonConfig("config.json");
+        int px = 1;
+        Vector3d[,] grid = demo.Camera.ParallelRayCast(demo, fi.Width/px, fi.Height/px);
 
-        static void ParallelImage(FloatImage image, Vector3d[,] grid)
-        {
-
-            var offsets = Enumerable.Range(0, 8);
-            Parallel.ForEach(offsets, FillImagePart =>
-            {
-                for(int y =  0; y < image.Height / 8; ++y)
-                {
-                    for (int x = 0; x < image.Width; x++)
-                    {
-                        float[] color = new float[3];
-                        color[0] = (float)grid[x / 5, y / 5].X;
-                        color[1] = (float)grid[x / 5, y / 5].Y;
-                        color[2] = (float)grid[x / 5, y / 5].Z;
-                        image.PutPixel(x, y, color);
-                    }
-                }
-            });
-        }
-        /*
         for (int y = 0; y < fi.Height; y++)
         {
             for (int x = 0; x < fi.Width; x++)
             {
                 float[] color = new float[3];
-                color[0] = (float)grid[x/5, y/5].X;
-                color[1] = (float)grid[x/5, y/5].Y;
-                color[2] = (float)grid[x/5, y/5].Z;
+                color[0] = (float)grid[x/px, y/px].X;
+                color[1] = (float)grid[x/px, y/px].Y;
+                color[2] = (float)grid[x/px, y/px].Z;
 
                 fi.PutPixel(x, y, color);
             }
         }
-        */
-        ParallelImage(fi, grid);
         string fileName = "config.pfm";
         /* HDR image.
         FloatImage fi = new FloatImage(wid, hei, 3);

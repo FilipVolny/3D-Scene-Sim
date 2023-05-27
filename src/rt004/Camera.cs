@@ -37,6 +37,29 @@ namespace rt004
             return ray;
         }
 
+        public Vector3d[,] ParallelRayCast(Scene scene, int pixelWidth, int pixelHeight)
+        {
+            Vector3d[,] pixels = new Vector3d[pixelWidth, pixelHeight];
+            Parallel.For(0, 8, i =>
+            {
+                for (int x = i; x < pixelWidth; x += 8)
+                {
+                    for (int y = 0; y < pixelHeight; y++)
+                    {
+                        Ray ray = GetRayFromCamera(x, y, pixelWidth, pixelHeight);
+
+                        (ISolid?, double?) intersection = Phong.ThrowRay(ray, scene.Solids);
+
+                        if (intersection.Item1 != null && intersection.Item2 != null)
+                        {
+                            pixels[x, y] = Phong.Shade(scene, ray, 0, MaxRayTracingDepth);
+                        }
+                    }
+                }
+            });
+            return pixels;
+        }
+
         public Vector3d[,] RayCast(Scene scene, int pixelWidth, int pixelHeight)
         {
             Vector3d[,] pixels = new Vector3d[pixelWidth, pixelHeight];

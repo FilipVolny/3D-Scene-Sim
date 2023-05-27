@@ -14,7 +14,7 @@ namespace rt004
     public static class Phong
     {
         
-        /*public static (ISolid?, double?) ThrowRay(Ray ray, List<ISolid> solids)
+        public static (ISolid?, double?) ThrowRay(Ray ray, List<ISolid> solids)
         {
             ISolid? result = null;
             double? t = null;
@@ -36,7 +36,7 @@ namespace rt004
                 }
             }
             return (result, t);
-        }*/
+        }
         /*
         public static (ISolid?, double?) ThrowRay(Ray ray, Node node)
         {
@@ -80,6 +80,7 @@ namespace rt004
         
         }
         */
+        /*
         public static (ISolid?, double?) ThrowRay(Ray ray, Node node)
         {
             Ray newRay = new Ray(Vector3d.TransformPosition(ray.Origin, node.InvertedMatrix), Vector3d.TransformPosition(ray.Direction, node.InvertedMatrix).Normalized());
@@ -115,6 +116,7 @@ namespace rt004
             }
             return closestSolid;
         }
+        */
         public static Vector3d Compute(List<ILightSource> lightSources, ISolid solid, List<ISolid> solids, Vector3d intersectionPoint, Ray ray, double ambientCoeficient)
         {
             //ambient light
