@@ -9,17 +9,18 @@ namespace rt004
 {
     public interface ISolid
     {
-        Material Material { get; }
+        IMaterial Material { get; }
         double? Intersection(Ray ray);
+        Vector2d GetUVCoords(Vector3d point);
         Vector3d GetNormal(Vector3d point);
     }
 
     public class Sphere : ISolid
     {
-        public Material Material { get; }
+        public IMaterial Material { get; }
         public Vector3d Origin { get; }
         public double Size { get; }
-        public Sphere(Material material, Vector3d origin, double size)
+        public Sphere(IMaterial material, Vector3d origin, double size)
         {
             Material = material;
             Origin = origin;
@@ -59,8 +60,13 @@ namespace rt004
         {
             return Vector3d.Subtract(Origin, point).Normalized();
         }
+        public Vector2d GetUVCoords(Vector3d point)
+        {
+            Vector3d normal = GetNormal(point);
+            return new Vector2d(Math.Atan2(normal.X, normal.Y) / 2 * Math.PI + 0.5, normal.Z + 0.5);
+        }
     }
-
+    /*
     public class Cylinder : ISolid
     {
         public Material Material { get; }
@@ -83,13 +89,13 @@ namespace rt004
             return point; //todo
         }
     }
-
+    */
     public class Plane : ISolid
     {
-        public Material Material { get; }
+        public IMaterial Material { get; }
         public Vector3d Origin { get; }
         public Vector3d Vector { get; }
-        public Plane(Material material, Vector3d origin, Vector3d vector)
+        public Plane(IMaterial material, Vector3d origin, Vector3d vector)
         {
             Material = material;
             Origin = origin;
@@ -110,6 +116,10 @@ namespace rt004
         public Vector3d GetNormal(Vector3d point)
         {
             return Vector;
+        }
+        public Vector2d GetUVCoords(Vector3d point) //dolaterbater
+        {
+            return new Vector2d();
         }
     }
 }

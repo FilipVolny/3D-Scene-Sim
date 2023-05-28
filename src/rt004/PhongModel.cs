@@ -120,32 +120,42 @@ namespace rt004
         public static Vector3d Compute(List<ILightSource> lightSources, ISolid solid, List<ISolid> solids, Vector3d intersectionPoint, Ray ray, double ambientCoeficient)
         {
             //ambient light
-            Vector3d Ea = solid.Material.Color * ambientCoeficient;
+            Vector3d Ea = solid.Material.Colour(solid.GetUVCoords(intersectionPoint)) * ambientCoeficient;
 
             Vector3d normal = solid.GetNormal(intersectionPoint).Normalized();
 
-            foreach (DirectionLightSource lightSource in lightSources)
+            foreach (ILightSource lightSource in lightSources)
             {
-                if (!Shadow(solid, intersectionPoint, lightSource, solids))
+                int success = 0;
+                int shadowRayNum = 20; //parametrize l8r b8r
+
+                Vector3d directionToLight = -lightSource.DirToLight(intersectionPoint).Normalized();
+                //diffuse component
+                double dotDiffusion = Vector3d.Dot(directionToLight, normal);
+                Vector3d Ed = lightSource.Intensity * solid.Material.Colour(solid.GetUVCoords(intersectionPoint)) * solid.Material.DiffusionCoefficient * (dotDiffusion > -1.0e-6 ? dotDiffusion : 0); ;
+
+                //specular component
+                double dotReflection = Vector3d.Dot((2 * normal * (Vector3d.Dot(normal, directionToLight)) - directionToLight).Normalized(), ray.Direction);
+                Vector3d Es = lightSource.Intensity * lightSource.Color * solid.Material.SpecularCoefficient * Math.Pow((dotReflection > 0 ? dotReflection : 0), solid.Material.Glossiness);
+
+
+                for(int i = 0; i < shadowRayNum; i++)
                 {
-                    //diffuse component
-                    double dotDiffusion = Vector3d.Dot(lightSource.Direction, normal);
-                    Vector3d Ed = lightSource.Intensity * solid.Material.Color * solid.Material.DiffusionCoefficient * (dotDiffusion > -1.0e-6 ? dotDiffusion : 0); ;
-
-                    //specular component
-                    double dotReflection = Vector3d.Dot((2 * normal * (Vector3d.Dot(normal, lightSource.Direction)) - lightSource.Direction).Normalized(), ray.Direction);
-                    Vector3d Es = lightSource.Intensity * lightSource.Color * solid.Material.SpecularCoefficient * Math.Pow((dotReflection > 0 ? dotReflection : 0), solid.Material.Glossiness);
-
-                    Ea += Ed + Es;
+                    if (!Shadow(solid, intersectionPoint, lightSource, solids))
+                    {
+                        success++;
+                    }
                 }
+                Ea += (Ed + Es) * success / shadowRayNum;
             }
+
             return Ea;
         }
 
-        public static bool Shadow(ISolid sourceSolid, Vector3d point, DirectionLightSource light, List<ISolid> solids) //directional light
+        public static bool Shadow(ISolid sourceSolid, Vector3d point, ILightSource light, List<ISolid> solids) //directional light
         {
             bool intersects = false;
-            Ray shadowRay = new Ray(point, -(light.Direction));
+            Ray shadowRay = new Ray(point, (light.DirToLight(point)));
             foreach (ISolid solid in solids)
             {
                 if (solid != sourceSolid)
@@ -173,7 +183,7 @@ namespace rt004
             Vector3d intersectedPoint = (Vector3d)(ray.Origin + (intersection.Item2 * ray.Direction));
             Vector3d color = default; //result color
 
-            foreach (DirectionLightSource light in scene.LightSources)
+            foreach (ILightSource light in scene.LightSources)
             {
                 color += Compute(scene.LightSources, intersectedSolid, scene.Solids, intersectedPoint, ray, 0.2);//ambient coeffient should be given 
             }

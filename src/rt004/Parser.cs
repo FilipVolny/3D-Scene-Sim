@@ -8,6 +8,7 @@ using Util;
 using OpenTK.Mathematics;
 namespace rt004
 {
+    /*
     record ConfigItem(SceneItem scene, ImageItem imageConfig);
 
     record SceneItem(double ambientCoefficent, CameraItem camera, List<MaterialItem> materials, NodeItem node, List<LightSourceItem> lightSources);
@@ -32,7 +33,7 @@ namespace rt004
             ConfigItem config = JsonSerializer.Deserialize<ConfigItem>(json)!;
             
             //parse materials
-            Dictionary<string, Material> materials = new Dictionary<string, Material>();
+            Dictionary<string, IMaterial> materials = new Dictionary<string, IMaterial>();
             foreach (var matJson in config.scene.materials)
             {
                 materials.Add(matJson.name, new Material(ListToVector(matJson.color), matJson.diffusionCoefficient, matJson.specularCoefficient, matJson.glossiness));
@@ -100,4 +101,5 @@ namespace rt004
             return new Node(transformationMatrix, inverseMatrix, children, solids);
         }
     }
+    */
 }

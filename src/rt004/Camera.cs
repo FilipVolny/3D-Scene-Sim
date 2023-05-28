@@ -1,9 +1,11 @@
 ﻿using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Schema;
 
 namespace rt004
 {
@@ -18,7 +20,7 @@ namespace rt004
         double Height { get; }
         double Width { get; }
         int MaxRayTracingDepth { get; set; }
-
+        int SamplePerPixel { get; } //needs cleanup
         public Camera(Vector3d origin, Vector3d forwardDirection, double rotation, double width, double height)
         {
             Origin = origin;
@@ -29,6 +31,7 @@ namespace rt004
             Height = height;
             Width = width;
             MaxRayTracingDepth = 10;
+            SamplePerPixel = 10;
         }
 
         private Ray GetRayFromCamera(int x, int y, int pixelWidth, int pixelHeight)
@@ -36,8 +39,12 @@ namespace rt004
             Ray ray = new(Origin, (ForwardDirection + (x - pixelWidth / 2) * (Width / pixelWidth) * RightDirection + (y - pixelHeight / 2) * (Height / pixelHeight) * UpDirection).Normalized());
             return ray;
         }
-
-        public Vector3d[,] ParallelRayCast(Scene scene, int pixelWidth, int pixelHeight)
+        private Ray GetRayFromCameraAntiAliasing(int pixelWidth, int pixelHeight, double xPart, double yPart)
+        {
+            return new Ray(Origin, (ForwardDirection + xPart * (Width / pixelWidth) * RightDirection + yPart * (Height / pixelHeight) * UpDirection).Normalized());
+        }
+        /*
+        public Vector3d[,] ParallelRayCast(Scene scene, int pixelWidth, int pixelHeight) //No Anti-Aliasing
         {
             Vector3d[,] pixels = new Vector3d[pixelWidth, pixelHeight];
             Parallel.For(0, 8, i =>
@@ -59,7 +66,51 @@ namespace rt004
             });
             return pixels;
         }
+        */
+        
+        public Vector3d[,] ParallelRayCast(Scene scene, int pixelWidth, int pixelHeight) //Yes Anti-aliasing
+        {
+            int numberOfAvailableProcessors = Environment.ProcessorCount - 1;
 
+            Random rnd = new();
+            Vector3d[,] pixels = new Vector3d[pixelWidth, pixelHeight];
+
+            Parallel.For(0, numberOfAvailableProcessors, i =>
+            {
+                for (int x = i; x < pixelWidth; x += numberOfAvailableProcessors)
+                {
+
+                    for (int y = 0; y  < pixelHeight; y++)
+                    {
+                        Vector3d color = Vector3d.Zero;
+                        List<int> possibleRows = new();
+                        for (int u = 0; u < SamplePerPixel; u++)
+                        {
+                            possibleRows.Add(u);
+                        }
+                        for (int u = 0; u < SamplePerPixel; u++)
+                        {
+                            int index = rnd.Next(0, possibleRows.Count);
+                            double xPart = x - 0.5 - pixelWidth / 2 + possibleRows[index] / SamplePerPixel + rnd.NextDouble() / SamplePerPixel;
+                            possibleRows.RemoveAt(index);
+
+                            double yPart = y - 0.5 - pixelHeight / 2 + u / SamplePerPixel + rnd.NextDouble() / SamplePerPixel;
+                            Ray ray = GetRayFromCameraAntiAliasing(pixelWidth, pixelHeight, xPart, yPart);
+
+                            (ISolid?, double?) intersection = Phong.ThrowRay(ray, scene.Solids);
+
+                            if (intersection.Item1 != null && intersection.Item2 != null)
+                            {
+                                color += Phong.Shade(scene, ray, 0, MaxRayTracingDepth) ;
+                            }
+                        }
+                        pixels[x, y] = color / SamplePerPixel;
+                    }
+                }
+            });
+            return pixels;
+        }
+        
         public Vector3d[,] RayCast(Scene scene, int pixelWidth, int pixelHeight)
         {
             Vector3d[,] pixels = new Vector3d[pixelWidth, pixelHeight];

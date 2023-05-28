@@ -10,7 +10,7 @@ namespace rt004
     {
         public double AmbientCoefficient { get; }
         public Camera Camera { get; }
-        public Dictionary<string, Material> Materials { get; }
+        public Dictionary<string, IMaterial> Materials { get; }
         public List<ISolid> Solids { get; }
         public List<ILightSource> LightSources { get; }
         public Scene(double ambientCoefficient, Camera camera)
@@ -19,10 +19,10 @@ namespace rt004
             Camera = camera;
             Solids = new List<ISolid>();
             LightSources = new List<ILightSource>();
-            Materials = new Dictionary<string, Material>();
+            Materials = new Dictionary<string, IMaterial>();
         }
 
-        public Scene(double ambientCoefficient, Camera camera, Dictionary<string, Material> materials, Node root, List<ILightSource> lightSources)
+        public Scene(double ambientCoefficient, Camera camera, Dictionary<string, IMaterial> materials, Node root, List<ILightSource> lightSources)
         {
             AmbientCoefficient = ambientCoefficient;
             Camera = camera;

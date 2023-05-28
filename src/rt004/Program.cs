@@ -24,6 +24,7 @@ internal class Program
 
     static void Main(string[] args)
     {
+
         // Parameters.
         // TODO: parse command-line arguments and/or your config file.
         //Config config = new Config();
@@ -37,15 +38,18 @@ internal class Program
         Material mat2 = new Material(new Vector3d(0, 1.5, 0), 0.4, 0.5, 5);
         Material mat3 = new Material(new Vector3d(1, 0, 0), 0.4, 0.9, 5);
 
+        PerlinNoise PeerlinNoise = new((0, 2, 0), 0.5, 0.1, 500);
+
+
         Plane planius = new Plane(mat3, (0, 100, 0), new Vector3d(0, 1, 0).Normalized()); //material, origin, normalVector
         Plane planius2 = new Plane(mat1, (0, 100, 0), new Vector3d(1, 1, 0).Normalized());
 
-        Sphere spherocious = new Sphere(mat1, new Vector3d(-25, 40, -10), 10); //material, origin, size
+        Sphere spherocious = new Sphere(PeerlinNoise, new Vector3d(-25, 40, -10), 10); //material, origin, size
         Sphere spherocious2 = new Sphere(mat3, new Vector3d(0, 40, 0), 10);
         Sphere babz = new Sphere(mat2, new Vector3d(25, 40, 10), 10);
 
-        DirectionLightSource light = new((-1, 0, 0), (1, 1, 1), 0.5); //origin, direction, color, intensity
-        DirectionLightSource light2 = new((0, 500, 300), (1, 1, 1), 0.5);
+        SphereLightSource light = new((-50, -50, -50), (1, 1, 1), 1, 20); //origin, direction, color, intensity
+        //DirectionLightSource light2 = new((0, 500, 300), (1, 1, 1), 0.5);
 
         demo.Solids.Add(planius);
         //demo.Solids.Add(planius2);
@@ -55,11 +59,10 @@ internal class Program
         demo.Solids.Add(babz);
         
         demo.LightSources.Add(light);
-        demo.LightSources.Add(light2);
+        //demo.LightSources.Add(light2);
 
         Material plush = new Material((1, 0.5, 0), 0.9, 0.1, 500);
-
-        Sphere Bleep = new Sphere(plush, new(25, 40, -25), 5);
+        Sphere Bleep = new Sphere(PeerlinNoise, new(25, 40, -25), 5);
 
         demo.Solids.Add(Bleep);
         
