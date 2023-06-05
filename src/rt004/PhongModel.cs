@@ -13,7 +13,6 @@ namespace rt004
 
     public static class Phong
     {
-        
         public static (ISolid?, double?) ThrowRay(Ray ray, List<ISolid> solids)
         {
             ISolid? result = null;
@@ -127,17 +126,16 @@ namespace rt004
             foreach (ILightSource lightSource in lightSources)
             {
                 int success = 0;
-                int shadowRayNum = 20; //parametrize l8r b8r
+                int shadowRayNum = 10; //parametrize l8r b8r
 
-                Vector3d directionToLight = -lightSource.DirToLight(intersectionPoint).Normalized();
+                Vector3d directionToLight = -lightSource.DirToLight(intersectionPoint); //
                 //diffuse component
                 double dotDiffusion = Vector3d.Dot(directionToLight, normal);
                 Vector3d Ed = lightSource.Intensity * solid.Material.Colour(solid.GetUVCoords(intersectionPoint)) * solid.Material.DiffusionCoefficient * (dotDiffusion > -1.0e-6 ? dotDiffusion : 0); ;
 
                 //specular component
-                double dotReflection = Vector3d.Dot((2 * normal * (Vector3d.Dot(normal, directionToLight)) - directionToLight).Normalized(), ray.Direction);
+                double dotReflection = Vector3d.Dot((2 * normal * Vector3d.Dot(normal, directionToLight) - directionToLight).Normalized(), ray.Direction);
                 Vector3d Es = lightSource.Intensity * lightSource.Color * solid.Material.SpecularCoefficient * Math.Pow((dotReflection > 0 ? dotReflection : 0), solid.Material.Glossiness);
-
 
                 for(int i = 0; i < shadowRayNum; i++)
                 {

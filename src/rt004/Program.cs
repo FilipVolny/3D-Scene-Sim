@@ -34,41 +34,54 @@ internal class Program
         
         Scene demo = new Scene(0.2, new Camera((0,0,0), (0,1,0), 0, 2, 2)); //ambientLight, camera(origin, forward, up, width, height)
 
-        Material mat1 = new Material(new Vector3d(0, 0, 1), 0.4, 0.4, 50); //color, diffusionCoeff, specularCoeff, glossiness 
-        Material mat2 = new Material(new Vector3d(0, 1.5, 0), 0.4, 0.5, 5);
-        Material mat3 = new Material(new Vector3d(1, 0, 0), 0.4, 0.9, 5);
+        Material mat1 = new Material(new Vector3d(0.3, 0.3, 1), 1, 0, 5); //color, diffusionCoeff, specularCoeff, glossiness 
+        Material mat2 = new Material(new Vector3d(0, 1, 0), 0.5, 0.5, 5);
+        Material mat3 = new Material(new Vector3d(1, 0, 0), 0.1, 0.9, 500);
+
+        Material matPlane = new Material(new Vector3d(0.3, 0.3, 0.3), 0.99, 0.01, 500);
+        Material matPlane2 = new Material(new Vector3d(0.3, 0.3, 0.3), 0.99, 0.01, 500);
 
         PerlinNoise PeerlinNoise = new((0, 2, 0), 0.5, 0.1, 500);
 
 
-        Plane planius = new Plane(mat3, (0, 100, 0), new Vector3d(0, 1, 0).Normalized()); //material, origin, normalVector
-        Plane planius2 = new Plane(mat1, (0, 100, 0), new Vector3d(1, 1, 0).Normalized());
+        Plane pBack = new Plane(matPlane, (0, 100, 0), new Vector3d(0, 1, 0).Normalized()); //material, origin, normalVector
+        Plane pFloor = new Plane(matPlane2, (0, 40, -25), new Vector3d(0, 25, -100).Normalized());
+        Plane pRight = new Plane(mat1, (200, 0, 0), new Vector3d(1, 0, 0).Normalized());
+        Plane pLeft = new Plane(matPlane, (-200, 0, 0), new Vector3d(-1, 0, 0).Normalized());
+        Plane pCeiling = new Plane(matPlane, (0, 0, 500), new Vector3d(0, 0, 1).Normalized());
 
-        Sphere spherocious = new Sphere(PeerlinNoise, new Vector3d(-25, 40, -10), 10); //material, origin, size
-        Sphere spherocious2 = new Sphere(mat3, new Vector3d(0, 40, 0), 10);
-        Sphere babz = new Sphere(mat2, new Vector3d(25, 40, 10), 10);
+        Plane frontWall = new Plane(mat1, new Vector3d(0, -100, 0), new Vector3d(0, -1, 0).Normalized());
 
-        SphereLightSource light = new((-50, -50, -50), (1, 1, 1), 1, 20); //origin, direction, color, intensity
-        //DirectionLightSource light2 = new((0, 500, 300), (1, 1, 1), 0.5);
+        Sphere spherocious = new Sphere(PeerlinNoise, new Vector3d(-25, 40, -5), 15); //material, origin, size
+        Sphere spherocious2 = new Sphere(mat3, new Vector3d(-20, 50, -5), 15);
+        Sphere babz = new Sphere(mat2, new Vector3d(25, 40, -10), 10);
 
-        demo.Solids.Add(planius);
-        //demo.Solids.Add(planius2);
-        
-        demo.Solids.Add(spherocious);
+        SphereLightSource light = new((-100, -50, 20), (1, 1, 1), 1, 40); //origin, direction, color, intensity
+        PointLightSource pointLt = new((-50, 0, 0), (0.2, 0.2, 0.2), 0.2);
+        //DirectionLightSource light2 = new((0, 500, 300), (1, 1, 1), 0.25);
+
+        demo.Solids.Add(pBack);
+        //demo.Solids.Add(pFloor);
+        //demo.Solids.Add(pRight);
+        //demo.Solids.Add(pLeft);
+        //demo.Solids.Add(pCeiling);
+        //demo.Solids.Add(frontWall);
+
+        //demo.Solids.Add(spherocious);
         demo.Solids.Add(spherocious2);
         demo.Solids.Add(babz);
-        
         demo.LightSources.Add(light);
+        //demo.LightSources.Add(pointLt);
         //demo.LightSources.Add(light2);
 
         Material plush = new Material((1, 0.5, 0), 0.9, 0.1, 500);
         Sphere Bleep = new Sphere(PeerlinNoise, new(25, 40, -25), 5);
 
-        demo.Solids.Add(Bleep);
+        //demo.Solids.Add(Bleep);
         
         FloatImage fi = new FloatImage(1200, 1200, 3);
         //Scene demo = JsonParser.ParseJsonConfig("config.json");
-        int px = 1;
+        int px = 8;
         Vector3d[,] grid = demo.Camera.ParallelRayCast(demo, fi.Width/px, fi.Height/px);
 
         for (int y = 0; y < fi.Height; y++)
@@ -83,7 +96,7 @@ internal class Program
                 fi.PutPixel(x, y, color);
             }
         }
-        string fileName = "config.pfm";
+        string fileName = "Anti.pfm";
         /* HDR image.
         FloatImage fi = new FloatImage(wid, hei, 3);
         fi = GenerateCoolImage(fi);

@@ -95,11 +95,16 @@ namespace rt004
         public IMaterial Material { get; }
         public Vector3d Origin { get; }
         public Vector3d Vector { get; }
+        private Vector3d e1;
+        private Vector3d e2;
         public Plane(IMaterial material, Vector3d origin, Vector3d vector)
         {
             Material = material;
             Origin = origin;
             Vector = vector.Normalized();
+
+            e1 = Vector3d.Cross(Vector, Vector3d.UnitX).Normalized(); //Vector here is the normal vector
+            e2 = Vector3d.Cross(Vector, e1).Normalized();
         }
 
         public double? Intersection(Ray ray)
@@ -119,7 +124,14 @@ namespace rt004
         }
         public Vector2d GetUVCoords(Vector3d point) //dolaterbater
         {
-            return new Vector2d();
+            if(Vector3d.Dot(e2, point) is double.NaN)
+            {
+                return new(0, 0);
+            }
+
+            return new Vector2d(Vector3d.Dot(e2, point), Vector3d.Dot(e1, point));
         }
+
+
     }
 }

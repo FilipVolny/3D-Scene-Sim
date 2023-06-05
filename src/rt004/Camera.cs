@@ -30,8 +30,8 @@ namespace rt004
             RightDirection = (Vector3d.Cross(UpDirection, ForwardDirection) + ForwardDirection * Vector3d.Dot(UpDirection, ForwardDirection)).Normalized();
             Height = height;
             Width = width;
-            MaxRayTracingDepth = 10;
-            SamplePerPixel = 10;
+            MaxRayTracingDepth = 10; //10
+            SamplePerPixel = 32;     //40
         }
 
         private Ray GetRayFromCamera(int x, int y, int pixelWidth, int pixelHeight)
@@ -43,6 +43,7 @@ namespace rt004
         {
             return new Ray(Origin, (ForwardDirection + xPart * (Width / pixelWidth) * RightDirection + yPart * (Height / pixelHeight) * UpDirection).Normalized());
         }
+
         /*
         public Vector3d[,] ParallelRayCast(Scene scene, int pixelWidth, int pixelHeight) //No Anti-Aliasing
         {
@@ -111,6 +112,7 @@ namespace rt004
             return pixels;
         }
         
+
         public Vector3d[,] RayCast(Scene scene, int pixelWidth, int pixelHeight)
         {
             Vector3d[,] pixels = new Vector3d[pixelWidth, pixelHeight];

@@ -67,7 +67,7 @@ namespace rt004
         {
             Vector3d randomOrigin = new(Origin.X + ((RND.NextDouble() - 0.5) * Radius / 2), Origin.Y + ((RND.NextDouble() - 0.5) * Radius / 2), Origin.Z + ((RND.NextDouble() - 0.5) * Radius / 2));
                 
-                return Vector3d.Subtract(randomOrigin, point);
+                return Vector3d.Subtract(randomOrigin, point).Normalized();
         }
     }
 

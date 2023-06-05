@@ -89,24 +89,20 @@ namespace rt004
         public Vector3d Color { get; }
         public Vector3d Colour(Vector2d uv)
         {
-            double coef = 1.29;
+            double coef = 2;
 
             double peerlinNose = 0;
-            double peerlinNose1 = 0;
-            double peerlinNose2 = 0;
-            for (int i = 0; i < 8; i++)
+
+
+            for (int i = 0; i < 10; i++)
             {
                 peerlinNose += Math.Abs(Noise2D(uv.X * Math.Pow(coef, (i + 1)) , uv.Y * Math.Pow(coef, (i + 1)))) / Math.Pow(coef, (i + 1));
-                peerlinNose1 += Math.Abs(Noise2D(uv.Y * Math.Pow(coef, (i + 1)), uv.X * Math.Pow(coef, (i + 1)))) / Math.Pow(coef, (i + 1));
-                peerlinNose2 += Math.Abs(Noise2D(uv.X * Math.Pow(coef, (i + 1)), uv.X * Math.Pow(coef, (i + 1)))) / Math.Pow(coef, (i + 1));
             }
             
-            Vector3d coulour = new Vector3d(0, 0, 0);
-            coulour.X = peerlinNose ;
-            coulour.Y = peerlinNose1 ;
-            coulour.Z = peerlinNose2  ;
 
-            return coulour;
+            Vector3d color = new Vector3d(peerlinNose, peerlinNose, peerlinNose);
+
+            return color;
         }
 
         public double DiffusionCoefficient { get; }
