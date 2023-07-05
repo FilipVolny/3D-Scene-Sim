@@ -16,10 +16,10 @@ namespace rt004
     }
 
     public class Sphere : ISolid
-    {
+    { 
         public IMaterial Material { get; }
-        public Vector3d Origin { get; }
-        public double Size { get; }
+        public Vector3d Origin { get; set; }
+        public double Size { get; set; }
         public Sphere(IMaterial material, Vector3d origin, double size)
         {
             Material = material;
@@ -93,43 +93,43 @@ namespace rt004
     public class Plane : ISolid
     {
         public IMaterial Material { get; }
-        public Vector3d Origin { get; }
-        public Vector3d Vector { get; }
-        private Vector3d e1;
-        private Vector3d e2;
-        public Plane(IMaterial material, Vector3d origin, Vector3d vector)
+        public Vector3d Origin { get; set; }
+        public Vector3d NormalVector { get; set; }
+        private readonly Vector3d _e1;
+        private readonly Vector3d _e2;
+        public Plane(IMaterial material, Vector3d origin, Vector3d normalVector)
         {
             Material = material;
             Origin = origin;
-            Vector = vector.Normalized();
+            NormalVector = normalVector.Normalized();
 
-            e1 = Vector3d.Cross(Vector, Vector3d.UnitX).Normalized(); //Vector here is the normal vector
-            e2 = Vector3d.Cross(Vector, e1).Normalized();
+            _e1 = Vector3d.Cross(NormalVector, Vector3d.UnitX).Normalized(); //Vector here is the normal vector
+            _e2 = Vector3d.Cross(NormalVector, _e1).Normalized();
         }
 
         public double? Intersection(Ray ray)
         {
-            double d = -Vector3d.Dot(Origin, Vector);
-            if (Vector3d.Dot(Vector, ray.Direction) == 0)
+            double d = -Vector3d.Dot(Origin, NormalVector);
+            if (Vector3d.Dot(NormalVector, ray.Direction) == 0)
             {
                 return null;
             }
-            double offset = -(Vector3d.Dot(Vector, ray.Origin) + d) / Vector3d.Dot(Vector, ray.Direction);
-            if (offset < 0) { return null; }
+            double offset = -(Vector3d.Dot(NormalVector, ray.Origin) + d) / Vector3d.Dot(NormalVector, ray.Direction);
+            if (offset <= 0) { return null; } //changed from < to <=, not sure if it does anything made more sense in my head at time of writing
             return offset;
         }
         public Vector3d GetNormal(Vector3d point)
         {
-            return Vector;
+            return NormalVector;
         }
         public Vector2d GetUVCoords(Vector3d point) //dolaterbater
         {
-            if(Vector3d.Dot(e2, point) is double.NaN)
+            if(Vector3d.Dot(_e2, point) is double.NaN)
             {
                 return new(0, 0);
             }
 
-            return new Vector2d(Vector3d.Dot(e2, point), Vector3d.Dot(e1, point));
+            return new Vector2d(Vector3d.Dot(_e2, point), Vector3d.Dot(_e1, point));
         }
 
 

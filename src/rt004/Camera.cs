@@ -31,7 +31,7 @@ namespace rt004
             Height = height;
             Width = width;
             MaxRayTracingDepth = 10; //10
-            SamplePerPixel = 32;     //40
+            SamplePerPixel = 2;     //40
         }
 
         private Ray GetRayFromCamera(int x, int y, int pixelWidth, int pixelHeight)

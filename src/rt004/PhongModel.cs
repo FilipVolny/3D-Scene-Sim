@@ -122,13 +122,13 @@ namespace rt004
             Vector3d Ea = solid.Material.Colour(solid.GetUVCoords(intersectionPoint)) * ambientCoeficient;
 
             Vector3d normal = solid.GetNormal(intersectionPoint).Normalized();
-
+            
             foreach (ILightSource lightSource in lightSources)
             {
                 int success = 0;
                 int shadowRayNum = 10; //parametrize l8r b8r
 
-                Vector3d directionToLight = -lightSource.DirToLight(intersectionPoint); //
+                Vector3d directionToLight = -lightSource.DirectionToLight(intersectionPoint); //
                 //diffuse component
                 double dotDiffusion = Vector3d.Dot(directionToLight, normal);
                 Vector3d Ed = lightSource.Intensity * solid.Material.Colour(solid.GetUVCoords(intersectionPoint)) * solid.Material.DiffusionCoefficient * (dotDiffusion > -1.0e-6 ? dotDiffusion : 0); ;
@@ -153,7 +153,7 @@ namespace rt004
         public static bool Shadow(ISolid sourceSolid, Vector3d point, ILightSource light, List<ISolid> solids) //directional light
         {
             bool intersects = false;
-            Ray shadowRay = new Ray(point, (light.DirToLight(point)));
+            Ray shadowRay = new Ray(point, (light.DirectionToLight(point)));
             foreach (ISolid solid in solids)
             {
                 if (solid != sourceSolid)
@@ -185,15 +185,20 @@ namespace rt004
             {
                 color += Compute(scene.LightSources, intersectedSolid, scene.Solids, intersectedPoint, ray, 0.2);//ambient coeffient should be given 
             }
+
             if (depth > maxdepth)
             {
                 return color;
             }
+
             if (intersectedSolid.Material.SpecularCoefficient > 0)
             {
                 Vector3d reflectionVector = 2 * Vector3d.Dot(intersectedSolid.GetNormal(intersectedPoint), -(ray.Direction)) * intersectedSolid.GetNormal(intersectedPoint) + ray.Direction;
                 color += intersectedSolid.Material.SpecularCoefficient * Shade(scene, new Ray(intersectedPoint, reflectionVector), depth + 1, maxdepth);
             }
+
+            
+
             return color;
         }
     }

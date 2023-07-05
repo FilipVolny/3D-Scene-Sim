@@ -17,6 +17,8 @@ namespace rt004
         public double DiffusionCoefficient { get; }
         public double SpecularCoefficient { get; }
         public double Glossiness { get; }
+        public double Transparency { get; }
+        public double RefractiveIndex { get; }
     }
 
     public class Material : IMaterial
@@ -29,13 +31,17 @@ namespace rt004
         public double DiffusionCoefficient { get; }
         public double SpecularCoefficient { get; }
         public double Glossiness { get; }
-
-        public Material(Vector3d color, double diffuseCoeficient, double specularCoeficient, double glossiness)
+        public double Transparency { get; }
+        public double RefractiveIndex { get; }
+        public Material(Vector3d color, double diffuseCoeficient, double specularCoeficient,
+            double glossiness, double transparency, double refractiveIndex)
         {
             Color = color;
             DiffusionCoefficient = diffuseCoeficient;
             SpecularCoefficient = specularCoeficient;
             Glossiness = glossiness;
+            Transparency = transparency;
+            RefractiveIndex = refractiveIndex;
         }
     }
     public class Texture : IMaterial
@@ -49,16 +55,19 @@ namespace rt004
         public double DiffusionCoefficient { get; }
         public double SpecularCoefficient { get; }
         public double Glossiness { get; }
+        public double Transparency { get; }
+        public double RefractiveIndex { get; }
 
-        public Texture(Vector3d color, double diffuseCoeficient, double specularCoeficient, double glossiness)
+        public Texture(Vector3d color, double diffuseCoeficient, double specularCoeficient, double glossiness, double refractiveIndex)
         {
             Color = color;
             DiffusionCoefficient = diffuseCoeficient;
             SpecularCoefficient = specularCoeficient;
             Glossiness = glossiness;
+            RefractiveIndex = refractiveIndex;
         }
     }
-
+    /*
     public class Chessboard : IMaterial
     {
         public Vector3d Color { get; }
@@ -80,27 +89,24 @@ namespace rt004
             Glossiness = glossiness;
         }
     }
-
-
-
-
+    */
     public class PerlinNoise : IMaterial
     {
         public Vector3d Color { get; }
         public Vector3d Colour(Vector2d uv)
         {
-            double coef = 2;
+            double coef = 1;
 
-            double peerlinNose = 0;
+            double perlinNoise = 0.1;
 
 
             for (int i = 0; i < 10; i++)
             {
-                peerlinNose += Math.Abs(Noise2D(uv.X * Math.Pow(coef, (i + 1)) , uv.Y * Math.Pow(coef, (i + 1)))) / Math.Pow(coef, (i + 1));
+                perlinNoise += Math.Abs(Noise2D(uv.X * Math.Pow(coef, (i + 1)) , uv.Y * Math.Pow(coef, (i + 1)))) / Math.Pow(coef, (i + 1));
             }
             
 
-            Vector3d color = new Vector3d(peerlinNose, peerlinNose, peerlinNose);
+            Vector3d color = new Vector3d(perlinNoise, perlinNoise, perlinNoise);
 
             return color;
         }
@@ -108,16 +114,19 @@ namespace rt004
         public double DiffusionCoefficient { get; }
         public double SpecularCoefficient { get; }
         public double Glossiness { get; }
-
-        public PerlinNoise(Vector3d color, double diffuseCoeficient, double specularCoeficient, double glossiness)
+        public double RefractiveIndex { get; }
+        public double Transparency { get; }
+        public PerlinNoise(Vector3d color, double diffuseCoeficient, double specularCoeficient, double glossiness, double refractiveIndex, double transparency)
         {
             Color = color;
             DiffusionCoefficient = diffuseCoeficient;
             SpecularCoefficient = specularCoeficient;
             Glossiness = glossiness;
+            RefractiveIndex = refractiveIndex;
+            Transparency = transparency;
         }
 
-        int[] pee = new int[512]  { 151,160,137,91,90,15,
+        int[] randomNumberArray = new int[512]  { 151,160,137,91,90,15,
             131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
             190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
             88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,
@@ -129,7 +138,7 @@ namespace rt004
             129,22,39,253, 19,98,108,110,79,113,224,232,178,185, 112,104,218,246,97,228,
             251,34,242,193,238,210,144,12,191,179,162,241, 81,51,145,235,249,14,239,107,
             49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127, 4,150,254,
-            138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180, 151,160,137,91,90,15,
+            138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180,151, 160,137,91,90,15,
             131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
             190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
             88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,
@@ -185,10 +194,10 @@ namespace rt004
             Vector2d bottomRight = new Vector2d(xf - 1, yf);
             Vector2d bottomLeft = new Vector2d(xf, yf);
 
-            int valueTopRight = pee[pee[X + 1] + Y + 1];
-            int valueTopLeft = pee[pee[X] + Y + 1];
-            int valueBottomRight = pee[pee[X + 1] + Y];
-            int valueBottomLeft = pee[pee[X] + Y];
+            int valueTopRight = randomNumberArray[randomNumberArray[X + 1] + Y + 1];
+            int valueTopLeft = randomNumberArray[randomNumberArray[X] + Y + 1];
+            int valueBottomRight = randomNumberArray[randomNumberArray[X + 1] + Y];
+            int valueBottomLeft = randomNumberArray[randomNumberArray[X] + Y];
 
             double dotTopRight = Vector2d.Dot(topRight, GetConstantVector(valueTopRight));
             double dotTopLeft = Vector2d.Dot(topLeft, GetConstantVector(valueTopLeft));
