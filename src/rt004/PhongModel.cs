@@ -198,14 +198,16 @@ namespace rt004
                 return color;
             }
 
+            //reflection
+            Vector3d reflectionColor = default;
             if (intersectedSolid.Material.SpecularCoefficient > 0)
             {
                 Vector3d reflectionVector = 2 * Vector3d.Dot(intersectedSolid.GetNormal(intersectedPoint, isInsideSolid), -(ray.Direction)) * intersectedSolid.GetNormal(intersectedPoint, isInsideSolid) + ray.Direction;
-                color += intersectedSolid.Material.SpecularCoefficient * Shade(scene, new Ray(intersectedPoint, reflectionVector, ray.OriginSolid), depth + 1, maxdepth);
+                reflectionColor += intersectedSolid.Material.SpecularCoefficient * Shade(scene, new Ray(intersectedPoint, reflectionVector, ray.OriginSolid), depth + 1, maxdepth);
             }
 
             //refraction
-
+            Vector3d refractionColor = default;
             double originRefractiveIndex;
             if (ray.OriginSolid != null) { originRefractiveIndex = ray.OriginSolid.Material.RefractiveIndex; }
             else { originRefractiveIndex = 1; }
@@ -229,8 +231,11 @@ namespace rt004
                 Vector3d refractiveVector = (kR * normalRayDotProduct - refractiveVectorAngleCosine) * normalVector - kR * (-ray.Direction);
                 Ray refractedRay = new(intersectedPoint, refractiveVector, intersectedSolid);
 
-                color += Shade(scene, refractedRay, depth + 1, maxdepth) * intersectedSolid.Material.Transparency;
+                refractionColor += Shade(scene, refractedRay, depth + 1, maxdepth);
             }
+
+            color += (reflectionColor * (1 - intersectedSolid.Material.Transparency)) + (refractionColor * intersectedSolid.Material.Transparency);
+
             return color;
         }
     }
