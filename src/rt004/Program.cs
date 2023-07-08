@@ -34,9 +34,11 @@ internal class Program
         
         Scene demo = new Scene(0.2, new Camera((0,0,0), (0,1,0), 0, 2, 2)); //ambientLight, camera(origin, forward, up, width, height)
 
-        Material mat1 = new Material(new Vector3d(0.3, 0.3, 1), 1, 0, 5, 0, 0); //color, diffusionCoeff, specularCoeff, glossiness 
-        Material mat2 = new Material(new Vector3d(0, 1, 0), 0.5, 0.5, 5, 0, 0);
-        Material mat3 = new Material(new Vector3d(1, 0, 0), 0.1, 0.9, 500, 0, 0);
+        Material blu = new Material(new Vector3d(0.3, 0.3, 1), 1, 0, 5, 0, 0); //color, diffusionCoeff, specularCoeff, glossiness 
+        Material green = new Material(new Vector3d(0, 1, 0), 0.5, 0.5, 5, 0, 0);
+        Material red = new Material(new Vector3d(1, 0, 0), 0.1, 0.9, 500, 0.2, 5);
+        Material glass = new Material(new Vector3d(0.1, 0, 0), 0.5, 0.5, 5, 1, 1.05);
+
 
         Material matPlane = new Material(new Vector3d(0.3, 0.3, 0.3), 0.99, 0.01, 500, 0, 0);
         Material matPlane2 = new Material(new Vector3d(0.3, 0.3, 0.3), 0.99, 0.01, 500, 0, 0);
@@ -44,16 +46,16 @@ internal class Program
         PerlinNoise PeerlinNoise = new((0, 2, 0), 0.5, 0.1, 500, 0, 0);
 
         Plane pBack = new Plane(matPlane, (0, 100, 0), new Vector3d(0, 1, 0).Normalized()); //material, origin, normalVector
-        Plane pFloor = new Plane(PeerlinNoise, (0, 40, -25), new Vector3d(0, 25, -100).Normalized());
-        Plane pRight = new Plane(mat1, (200, 0, 0), new Vector3d(1, 0, 0).Normalized());
+        Plane pFloor = new Plane(PeerlinNoise, (0, 40, -25), new Vector3d(0, 0, -100).Normalized());
+        Plane pRight = new Plane(blu, (200, 0, 0), new Vector3d(1, 0, 0).Normalized());
         Plane pLeft = new Plane(matPlane, (-200, 0, 0), new Vector3d(-1, 0, 0).Normalized());
         Plane pCeiling = new Plane(matPlane, (0, 0, 500), new Vector3d(0, 0, 1).Normalized());
 
-        Plane frontWall = new Plane(mat1, new Vector3d(0, -100, 0), new Vector3d(0, -1, 0).Normalized());
+        Plane frontWall = new Plane(blu, new Vector3d(0, -100, 0), new Vector3d(0, -1, 0).Normalized());
 
-        Sphere spherocious = new Sphere(mat1, new Vector3d(-25, -40, -5), 15); //material, origin, size
-        Sphere spherocious2 = new Sphere(mat3, new Vector3d(-20, 50, -5), 15);
-        Sphere babz = new Sphere(mat2, new Vector3d(25, 40, -10), 10);
+        Sphere spherocious = new Sphere(blu, new Vector3d(-25, -40, -5), 15); //material, origin, size
+        Sphere spherocious2 = new Sphere(glass, new Vector3d(-20, 50, -5), 15);
+        Sphere babz = new Sphere(green, new Vector3d(25, 40, -10), 10);
         
         SphericalLightSource light = new((-100, -50, 20), (1, 1, 1), 1, 40); //origin, direction, color, intensity, radius
         PointLightSource pointLt = new((-50, 0, 0), (0.2, 0.2, 0.2), 0.2);
@@ -74,9 +76,9 @@ internal class Program
         //demo.LightSources.Add(light2);
 
         Material plush = new Material((1, 0.5, 0), 0.9, 0.1, 500, 0, 0);
-        //Sphere Bleep = new Sphere(PeerlinNoise, new(25, 40, -25), 5);
+        Sphere Bleep = new Sphere(plush, new Vector3d(-10, 60, -5), 5);
 
-        //demo.Solids.Add(Bleep);
+        demo.Solids.Add(Bleep);
         
         FloatImage fi = new FloatImage(1200, 1200, 3);
         //Scene demo = JsonParser.ParseJsonConfig("config.json");

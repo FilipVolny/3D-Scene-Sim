@@ -11,8 +11,8 @@ namespace rt004
     {
         IMaterial Material { get; }
         double? Intersection(Ray ray);
-        Vector2d GetUVCoords(Vector3d point);
-        Vector3d GetNormal(Vector3d point);
+        Vector2d GetUVCoords(Vector3d point, bool isInside);
+        Vector3d GetNormal(Vector3d point, bool isInside);
     }
 
     public class Sphere : ISolid
@@ -56,13 +56,18 @@ namespace rt004
             }
         }
 
-        public Vector3d GetNormal(Vector3d point)
+        public Vector3d GetNormal(Vector3d point, bool isInside)
         {
+            if(isInside)
+            {
+                return Vector3d.Subtract(point, Origin).Normalized();
+            }
+
             return Vector3d.Subtract(Origin, point).Normalized();
         }
-        public Vector2d GetUVCoords(Vector3d point)
+        public Vector2d GetUVCoords(Vector3d point, bool isInside)
         {
-            Vector3d normal = GetNormal(point);
+            Vector3d normal = GetNormal(point, isInside);
             return new Vector2d(Math.Atan2(normal.X, normal.Y) / 2 * Math.PI + 0.5, normal.Z + 0.5);
         }
     }
@@ -118,11 +123,11 @@ namespace rt004
             if (offset <= 0) { return null; } //changed from < to <=, not sure if it does anything made more sense in my head at time of writing
             return offset;
         }
-        public Vector3d GetNormal(Vector3d point)
+        public Vector3d GetNormal(Vector3d point, bool isInside)
         {
             return NormalVector;
         }
-        public Vector2d GetUVCoords(Vector3d point) //dolaterbater
+        public Vector2d GetUVCoords(Vector3d point, bool isInside) //dolaterbater
         {
             if(Vector3d.Dot(_e2, point) is double.NaN)
             {

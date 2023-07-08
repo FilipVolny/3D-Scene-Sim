@@ -116,12 +116,15 @@ namespace rt004
             return closestSolid;
         }
         */
-        public static Vector3d Compute(List<ILightSource> lightSources, ISolid solid, List<ISolid> solids, Vector3d intersectionPoint, Ray ray, double ambientCoeficient)
+        public static Vector3d Compute(List<ILightSource> lightSources, ISolid intersectedSolid, List<ISolid> solidsInScene, Vector3d intersectionPoint, Ray ray, double ambientCoeficient)
         {
-            //ambient light
-            Vector3d Ea = solid.Material.Colour(solid.GetUVCoords(intersectionPoint)) * ambientCoeficient;
+            bool isInsideSolid = false;
+            if( intersectedSolid == ray.OriginSolid ) { isInsideSolid = true; }
 
-            Vector3d normal = solid.GetNormal(intersectionPoint).Normalized();
+            //ambient light
+            Vector3d Ea = intersectedSolid.Material.Colour(intersectedSolid.GetUVCoords(intersectionPoint, isInsideSolid)) * ambientCoeficient;
+
+            Vector3d normal = intersectedSolid.GetNormal(intersectionPoint, isInsideSolid).Normalized();
             
             foreach (ILightSource lightSource in lightSources)
             {
@@ -131,15 +134,15 @@ namespace rt004
                 Vector3d directionToLight = -lightSource.DirectionToLight(intersectionPoint); //
                 //diffuse component
                 double dotDiffusion = Vector3d.Dot(directionToLight, normal);
-                Vector3d Ed = lightSource.Intensity * solid.Material.Colour(solid.GetUVCoords(intersectionPoint)) * solid.Material.DiffusionCoefficient * (dotDiffusion > -1.0e-6 ? dotDiffusion : 0); ;
+                Vector3d Ed = lightSource.Intensity * intersectedSolid.Material.Colour(intersectedSolid.GetUVCoords(intersectionPoint, isInsideSolid)) * intersectedSolid.Material.DiffusionCoefficient * (dotDiffusion > -1.0e-6 ? dotDiffusion : 0); ;
 
                 //specular component
                 double dotReflection = Vector3d.Dot((2 * normal * Vector3d.Dot(normal, directionToLight) - directionToLight).Normalized(), ray.Direction);
-                Vector3d Es = lightSource.Intensity * lightSource.Color * solid.Material.SpecularCoefficient * Math.Pow((dotReflection > 0 ? dotReflection : 0), solid.Material.Glossiness);
+                Vector3d Es = lightSource.Intensity * lightSource.Color * intersectedSolid.Material.SpecularCoefficient * Math.Pow((dotReflection > 0 ? dotReflection : 0), intersectedSolid.Material.Glossiness);
 
                 for(int i = 0; i < shadowRayNum; i++)
                 {
-                    if (!Shadow(solid, intersectionPoint, lightSource, solids))
+                    if (!Shadow(intersectedSolid, intersectionPoint, lightSource, solidsInScene))
                     {
                         success++;
                     }
@@ -153,7 +156,7 @@ namespace rt004
         public static bool Shadow(ISolid sourceSolid, Vector3d point, ILightSource light, List<ISolid> solids) //directional light
         {
             bool intersects = false;
-            Ray shadowRay = new Ray(point, (light.DirectionToLight(point)));
+            Ray shadowRay = new Ray(point, (light.DirectionToLight(point)), null); //this could pose a problem? what if the direction to light is outside and the origin inside? not sure if valid thought
             foreach (ISolid solid in solids)
             {
                 if (solid != sourceSolid)
@@ -178,6 +181,10 @@ namespace rt004
             }
 
             ISolid intersectedSolid = intersection.Item1;
+
+            bool isInsideSolid = false;
+            if (intersectedSolid == ray.OriginSolid) { isInsideSolid = true; }
+
             Vector3d intersectedPoint = (Vector3d)(ray.Origin + (intersection.Item2 * ray.Direction));
             Vector3d color = default; //result color
 
@@ -193,11 +200,31 @@ namespace rt004
 
             if (intersectedSolid.Material.SpecularCoefficient > 0)
             {
-                Vector3d reflectionVector = 2 * Vector3d.Dot(intersectedSolid.GetNormal(intersectedPoint), -(ray.Direction)) * intersectedSolid.GetNormal(intersectedPoint) + ray.Direction;
-                color += intersectedSolid.Material.SpecularCoefficient * Shade(scene, new Ray(intersectedPoint, reflectionVector), depth + 1, maxdepth);
+                Vector3d reflectionVector = 2 * Vector3d.Dot(intersectedSolid.GetNormal(intersectedPoint, isInsideSolid), -(ray.Direction)) * intersectedSolid.GetNormal(intersectedPoint, isInsideSolid) + ray.Direction;
+                color += intersectedSolid.Material.SpecularCoefficient * Shade(scene, new Ray(intersectedPoint, reflectionVector, ray.OriginSolid), depth + 1, maxdepth);
             }
 
-            
+            //refraction
+
+            double originRefractiveIndex;
+            if (ray.OriginSolid != null) { originRefractiveIndex = ray.OriginSolid.Material.RefractiveIndex; }
+            else { originRefractiveIndex = 1; }
+
+            double intersectedSolidRefractiveIndex;
+            if (ray.OriginSolid != null) { intersectedSolidRefractiveIndex = ray.OriginSolid.Material.RefractiveIndex; }
+            else { intersectedSolidRefractiveIndex = intersectedSolid.Material.RefractiveIndex; }
+
+            double kR = originRefractiveIndex / intersectedSolidRefractiveIndex; //refractive coeficient
+            Vector3d normalVector = -intersectedSolid.GetNormal(intersectedPoint, isInsideSolid);
+            double normalRayDotProduct = Vector3d.Dot(normalVector, -ray.Direction);
+
+            double refractiveVectorAngleCosine = Math.Sqrt(1 - (kR * kR) * (1 - (normalRayDotProduct * normalRayDotProduct)));
+
+            Vector3d refractiveVector = (kR * normalRayDotProduct - refractiveVectorAngleCosine) * normalVector - kR * ( -ray.Direction);
+            Ray refractedRay = new(intersectedPoint, refractiveVector, intersectedSolid);
+
+            color += Shade(scene, refractedRay, depth + 1, maxdepth) * intersectedSolid.Material.Transparency;
+
 
             return color;
         }

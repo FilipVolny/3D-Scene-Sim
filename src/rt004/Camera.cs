@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Schema;
-
+//todo line 43,39, its written there what needs to be done
 namespace rt004
 {
     public class Camera
@@ -31,17 +31,17 @@ namespace rt004
             Height = height;
             Width = width;
             MaxRayTracingDepth = 10; //10
-            SamplePerPixel = 2;     //40
+            SamplePerPixel = 1;     //40
         }
 
         private Ray GetRayFromCamera(int x, int y, int pixelWidth, int pixelHeight)
         {
-            Ray ray = new(Origin, (ForwardDirection + (x - pixelWidth / 2) * (Width / pixelWidth) * RightDirection + (y - pixelHeight / 2) * (Height / pixelHeight) * UpDirection).Normalized());
+            Ray ray = new(Origin, (ForwardDirection + (x - pixelWidth / 2) * (Width / pixelWidth) * RightDirection + (y - pixelHeight / 2) * (Height / pixelHeight) * UpDirection).Normalized(), null); //todo, what if the camera is inside a solid
             return ray;
         }
         private Ray GetRayFromCameraAntiAliasing(int pixelWidth, int pixelHeight, double xPart, double yPart)
         {
-            return new Ray(Origin, (ForwardDirection + xPart * (Width / pixelWidth) * RightDirection + yPart * (Height / pixelHeight) * UpDirection).Normalized());
+            return new Ray(Origin, (ForwardDirection + xPart * (Width / pixelWidth) * RightDirection + yPart * (Height / pixelHeight) * UpDirection).Normalized(), null); //todo what if the camera is inside a solid
         }
 
         /*
