@@ -37,7 +37,7 @@ internal class Program
         Material blu = new Material(new Vector3d(0.3, 0.3, 1), 1, 0, 5, 0, 0); //color, diffusionCoeff, specularCoeff, glossiness 
         Material green = new Material(new Vector3d(0, 1, 0), 0.5, 0.5, 5, 0, 0);
         Material red = new Material(new Vector3d(1, 0, 0), 0.1, 0.9, 500, 0.2, 5);
-        Material glass = new Material(new Vector3d(0.1, 0, 0), 0.5, 0.5, 5, 1, 1.05);
+        Material glass = new Material(new Vector3d(0.1, 0, 0), 1, 0, 5, 1, 1.05);
 
 
         Material matPlane = new Material(new Vector3d(0.3, 0.3, 0.3), 0.99, 0.01, 500, 0, 0);

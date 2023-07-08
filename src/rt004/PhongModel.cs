@@ -220,12 +220,17 @@ namespace rt004
 
             double refractiveVectorAngleCosine = Math.Sqrt(1 - (kR * kR) * (1 - (normalRayDotProduct * normalRayDotProduct)));
 
-            Vector3d refractiveVector = (kR * normalRayDotProduct - refractiveVectorAngleCosine) * normalVector - kR * ( -ray.Direction);
-            Ray refractedRay = new(intersectedPoint, refractiveVector, intersectedSolid);
+            if ((originRefractiveIndex > intersectedSolidRefractiveIndex) && refractiveVectorAngleCosine <= (intersectedSolidRefractiveIndex / originRefractiveIndex))
+            {
+                return color;
+            }
+            else
+            {
+                Vector3d refractiveVector = (kR * normalRayDotProduct - refractiveVectorAngleCosine) * normalVector - kR * (-ray.Direction);
+                Ray refractedRay = new(intersectedPoint, refractiveVector, intersectedSolid);
 
-            color += Shade(scene, refractedRay, depth + 1, maxdepth) * intersectedSolid.Material.Transparency;
-
-
+                color += Shade(scene, refractedRay, depth + 1, maxdepth) * intersectedSolid.Material.Transparency;
+            }
             return color;
         }
     }
