@@ -58,12 +58,13 @@ namespace rt004
         public double Transparency { get; }
         public double RefractiveIndex { get; }
 
-        public Texture(Vector3d color, double diffuseCoeficient, double specularCoeficient, double glossiness, double refractiveIndex)
+        public Texture(Vector3d color, double diffuseCoeficient, double specularCoeficient, double glossiness, double transparency, double refractiveIndex)
         {
             Color = color;
             DiffusionCoefficient = diffuseCoeficient;
             SpecularCoefficient = specularCoeficient;
             Glossiness = glossiness;
+            Transparency = transparency;
             RefractiveIndex = refractiveIndex;
         }
     }

@@ -6,20 +6,25 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using Util;
 using OpenTK.Mathematics;
+using System.Diagnostics.Tracing;
+
+
 namespace rt004
 {
-    /*
+    // !!!!!!
+    //      TODO parser cant parse textures
+    //      must be able to save to a JSON as well
+    // !!!!!!
+
     record ConfigItem(SceneItem scene, ImageItem imageConfig);
-
-    record SceneItem(double ambientCoefficent, CameraItem camera, List<MaterialItem> materials, NodeItem node, List<LightSourceItem> lightSources);
+    record SceneItem(double ambientCoefficient, CameraItem camera, List<MaterialItem> materials, List<NodeItem> nodes, List<LightSourceItem> lightSources);
     record CameraItem(List<double> origin, List<double> direction, double rotation, double width, double height );
-    record MaterialItem(string name, List<double> color, double diffusionCoefficient, double specularCoefficient, double glossiness);
-    record LightSourceItem(string type, List<double> direction, List<double> origin, List<double> color, double intensity);
+    record MaterialItem(string name, string type, List<double> color, double diffusionCoefficient, double specularCoefficient, double glossiness, double transparency, double refractiveIndex);
+    record LightSourceItem(string type, List<double> direction, List<double> origin, List<double> color, double intensity, double size);
     record ImageItem(string outputFile, string format, List<int> size);
-
     record SolidItem(string type, string materialName, List<double> origin, double size, List<double> normalVector);
-
-    record NodeItem(List<List<double>> transformationMatrix, List<NodeItem> children, List<SolidItem> solids);
+    record NodeItem(List<List<double>> transformationMatrix, List<NodeItem> children, SolidItem solid);
+    //-------------------------------------
 
     internal static class JsonParser
     {
@@ -30,76 +35,99 @@ namespace rt004
         internal static Scene ParseJsonConfig(string fileName)
         {
             using FileStream json = File.OpenRead(fileName);
-            ConfigItem config = JsonSerializer.Deserialize<ConfigItem>(json)!;
-            
+            ConfigItem configJson = JsonSerializer.Deserialize<ConfigItem>(json)!;
+
             //parse materials
-            Dictionary<string, IMaterial> materials = new Dictionary<string, IMaterial>();
-            foreach (var matJson in config.scene.materials)
+            Dictionary<string, IMaterial> materials = new Dictionary<string, IMaterial>
             {
-                materials.Add(matJson.name, new Material(ListToVector(matJson.color), matJson.diffusionCoefficient, matJson.specularCoefficient, matJson.glossiness));
+                { "default", new Material(new Vector3d(0.9, 0.9, 0.9), 1, 0, 0, 0, 1) }
+            };
+
+            foreach (var matJson in configJson.scene.materials)
+            {
+                if(matJson.type == "material")
+                {
+                    materials.Add(matJson.name, new Material(ListToVector(matJson.color), matJson.diffusionCoefficient, matJson.specularCoefficient, matJson.glossiness, matJson.transparency, matJson.refractiveIndex));
+                }
+                else if(matJson.type == "noise")
+                {
+                    materials.Add(matJson.name, new PerlinNoise(ListToVector(matJson.color), matJson.diffusionCoefficient, matJson.specularCoefficient, matJson.glossiness, matJson.transparency, matJson.refractiveIndex));
+                }
+                else if(matJson.type == "texture")
+                {
+                    materials.Add(matJson.name, new Texture(ListToVector(matJson.color), matJson.diffusionCoefficient, matJson.specularCoefficient, matJson.glossiness, matJson.transparency, matJson.refractiveIndex));
+                }
+
             }
             //parse lights
             List<ILightSource> lightSources = new List<ILightSource>();
-            foreach(var lgt in config.scene.lightSources)
+            foreach(var lgtJson in configJson.scene.lightSources)
             {
-                if(lgt.type == "directional")
+                if(lgtJson.type == "directional")
                 {
-                    lightSources.Add(new DirectionLightSource(ListToVector(lgt.direction), ListToVector(lgt.color), lgt.intensity));
+                    lightSources.Add(new DirectionalLightSource(ListToVector(lgtJson.direction), ListToVector(lgtJson.color), lgtJson.intensity));
                 }
-                if(lgt.type == "point")
+                else if(lgtJson.type == "point")
                 {
-                    lightSources.Add(new DirectionLightSource(ListToVector(lgt.origin), ListToVector(lgt.color), lgt.intensity));
+                    lightSources.Add(new PointLightSource(ListToVector(lgtJson.origin), ListToVector(lgtJson.color), lgtJson.intensity));
+                }
+                else if(lgtJson.type == "spherical")
+                {
+                    lightSources.Add(new SphericalLightSource(ListToVector(lgtJson.origin), ListToVector(lgtJson.color), lgtJson.intensity, lgtJson.size));
                 }
             }
             //parse camera
-            Camera camera = new Camera(ListToVector(config.scene.camera.origin), ListToVector(config.scene.camera.direction), config.scene.camera.rotation, config.scene.camera.width, config.scene.camera.height);
+            Camera camera = new Camera(ListToVector(configJson.scene.camera.origin), ListToVector(configJson.scene.camera.direction), configJson.scene.camera.rotation, configJson.scene.camera.width, configJson.scene.camera.height);
 
-            //parse img config
-            int imageWidth = config.imageConfig.size[0];
-            int imageHeight = config.imageConfig.size[1];
-            string fileOutput = config.imageConfig.outputFile + "." + config.imageConfig.format;
+            //parse img config --- nothing is done with this at the moment
+            int imageWidth = configJson.imageConfig.size[0];
+            int imageHeight = configJson.imageConfig.size[1];
+            string fileOutput = configJson.imageConfig.outputFile + "." + configJson.imageConfig.format;
 
             //parse nodes
-            Node root = CreateTree(materials,config.scene.node);
+            Node root = new Node(Matrix4d.Identity, new List<Node>(), null);
+            foreach(var node in configJson.scene.nodes)
+            {
+                root.Nodes.Add(CreateTree(materials,node, null));
+            }
 
-            Scene scene = new Scene(config.scene.ambientCoefficent, camera, materials, root, lightSources);
+            Scene scene = new Scene(configJson.scene.ambientCoefficient, camera, materials, root, lightSources);
             return scene;
         }
-        internal static Node CreateTree(Dictionary<string, Material> materials, NodeItem node)
+        public static Node CreateTree(Dictionary<string, IMaterial> materials, NodeItem nodeJson, Node? parent)
         {
             Matrix4d transformationMatrix = new Matrix4d();
             for( int i = 0;  i < 4; i++ )
             {
                 for( int j = 0; j < 4; j++ )
                 {
-                    transformationMatrix[i, j] = node.transformationMatrix[i][j];
+                    transformationMatrix[i, j] = nodeJson.transformationMatrix[i][j];
                 } 
             }
 
-            Matrix4d inverseMatrix = Matrix4d.Invert(transformationMatrix);
-
-            List<ISolid> solids = new List<ISolid>();
-            foreach(var s in node.solids)
+            ISolid? solid = null; //for the sake of testing transformation order
+            if(nodeJson.solid is not null)
             {
-                if( s.type == "sphere")
+                if (nodeJson.solid.type == "sphere")
                 {
-                    solids.Add(new Sphere(materials[s.materialName], ListToVector(s.origin), s.size));
+                    solid = (new Sphere(materials[nodeJson.solid.materialName], ListToVector(nodeJson.solid.origin), nodeJson.solid.size));
                 }
-                if( s.type == "plane" )
+                else if (nodeJson.solid.type == "plane")
                 {
-                    solids.Add(new Plane(materials[s.materialName], ListToVector(s.origin), ListToVector(s.normalVector)));
+                    solid = (new Plane(materials[nodeJson.solid.materialName], ListToVector(nodeJson.solid.origin), ListToVector(nodeJson.solid.normalVector)));
                 }
             }
+            Node currentNode = new Node(transformationMatrix, new List<Node>(), solid);
             List<Node> children = new List<Node>();
-            if( node.children  != null )
+            if( nodeJson.children != null )
             {
-                foreach (var n in node.children)
+                foreach (var n in nodeJson.children)
                 {
-                    children.Add(CreateTree(materials, n));
+                    children.Add(CreateTree(materials, n, currentNode));
                 }
             }
-            return new Node(transformationMatrix, inverseMatrix, children, solids);
+            currentNode.Nodes = children;
+            return currentNode;
         }
     }
-    */
 }

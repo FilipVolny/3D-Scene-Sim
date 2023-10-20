@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,10 @@ namespace rt004
         public Dictionary<string, IMaterial> Materials { get; }
         public List<ISolid> Solids { get; }
         public List<ILightSource> LightSources { get; }
+        public Node Root { get; }
+        
+        
+        /* Redundant code
         public Scene(double ambientCoefficient, Camera camera)
         {
             AmbientCoefficient = ambientCoefficient;
@@ -21,16 +26,15 @@ namespace rt004
             LightSources = new List<ILightSource>();
             Materials = new Dictionary<string, IMaterial>();
         }
-
+        */
         public Scene(double ambientCoefficient, Camera camera, Dictionary<string, IMaterial> materials, Node root, List<ILightSource> lightSources)
         {
             AmbientCoefficient = ambientCoefficient;
             Camera = camera;
             Materials = materials;
             LightSources = lightSources;
-            //todo root
-            Solids = new(); //delete
-
+            Root = root;
+            Solids = new();
         }
     }
 }

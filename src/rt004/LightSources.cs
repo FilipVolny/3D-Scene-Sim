@@ -31,6 +31,7 @@ namespace rt004
         }
 
     }
+
     public class PointLightSource : ILightSource
     {
         public Vector3d Origin { get; }
@@ -47,7 +48,6 @@ namespace rt004
             return Vector3d.Subtract(Origin, point);
         }
     }
-
     public class SphericalLightSource : ILightSource
     {
         public Vector3d Origin { get; }

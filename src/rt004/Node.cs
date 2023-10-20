@@ -10,15 +10,15 @@ namespace rt004
     public class Node
     {
         public Matrix4d TransformationMatrix { get; set; }
-        public Matrix4d InvertedMatrix { get; set; }
+        public Matrix4d TransformationMatrixInverse { get; }
         public List<Node> Nodes { get; set; }
-        public List<ISolid> Solids { get; set; }
-        public Node(Matrix4d transformationMatrix, Matrix4d invertedMatrix,  List<Node> nodes, List<ISolid> solids)
+        public ISolid? Solid { get; set; }
+        public Node(Matrix4d transformationMatrix, List<Node> nodes, ISolid? solid)
         {
             this.TransformationMatrix = transformationMatrix;
-            this.InvertedMatrix = invertedMatrix;
+            this.TransformationMatrixInverse = transformationMatrix.Inverted();
             this.Nodes = nodes;
-            this.Solids = solids;
+            this.Solid = solid;
         }
     }
 }

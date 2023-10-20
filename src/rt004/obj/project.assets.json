@@ -96,7 +96,7 @@
       "projectName": "rt004",
       "projectPath": "C:\\Users\\Filip\\source\\repos\\RT004\\src\\rt004\\rt004.csproj",
       "packagesPath": "C:\\Users\\Filip\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Filip\\Source\\Repos\\RT004\\src\\rt004\\obj\\",
+      "outputPath": "C:\\Users\\Filip\\source\\repos\\RT004\\src\\rt004\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Filip\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -146,7 +146,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.201\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
       }
     }
   }

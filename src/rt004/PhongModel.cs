@@ -4,15 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using static rt004.Program;
 
 namespace rt004
 {
-    //so yes, we apply the inverse transformation to a ray, instead of applying transformations to objects
-    // but we still need to apply a transformation matrix to the normal vector of the object
 
     public static class Phong
     {
+        /*
         public static (ISolid?, double?) ThrowRay(Ray ray, List<ISolid> solids)
         {
             ISolid? result = null;
@@ -36,6 +36,53 @@ namespace rt004
             }
             return (result, t);
         }
+        */
+        
+        //TODO throw ray does not work yet 
+        public static (ISolid?, double?, Matrix4d) ThrowRay(Ray ray, Node root)
+        {
+            (ISolid?, double?, Matrix4d) result = new(null, null, Matrix4d.Identity);
+
+            result = _throwRayRecursive(ray, root, Matrix4d.Identity, result);
+
+            return result;
+        }
+
+        private static (ISolid?, double?, Matrix4d) _throwRayRecursive(Ray ray, Node node, Matrix4d currentTransformation,
+            (ISolid?, double?, Matrix4d) result)
+        {
+
+            currentTransformation = node.TransformationMatrixInverse * currentTransformation;
+            Ray transformedRay = ray.TransformRay(currentTransformation);
+
+            foreach (Node child in node.Nodes)
+            {
+                result = _throwRayRecursive(transformedRay, child, currentTransformation, result);
+            }
+            double? tmp = null;
+            if (node.Solid is not null)
+            {
+                tmp = node.Solid.Intersection(transformedRay);
+            }
+
+            if (tmp != null && result.Item2 == null && tmp > 0.6)
+            {
+                result.Item2 = tmp;
+                result.Item1 = node.Solid;
+                result.Item3 = currentTransformation;
+            }
+            else if (tmp != null && result.Item2 != null && tmp > 0.6)
+            {
+                if (tmp < result.Item2)
+                {
+                    result.Item2 = tmp;
+                    result.Item1 = node.Solid;
+                    result.Item3 = currentTransformation;
+                }
+            }
+            return result;
+        }
+
         /*
         public static (ISolid?, double?) ThrowRay(Ray ray, Node node)
         {
@@ -116,7 +163,9 @@ namespace rt004
             return closestSolid;
         }
         */
-        public static Vector3d Compute(List<ILightSource> lightSources, ISolid intersectedSolid, List<ISolid> solidsInScene, Vector3d intersectionPoint, Ray ray, double ambientCoeficient)
+        /*
+        public static Vector3d Compute(List<ILightSource> lightSources, ISolid intersectedSolid,
+            List<ISolid> solidsInScene, Vector3d intersectionPoint, Ray ray, double ambientCoeficient)
         {
             bool isInsideSolid = false;
             if( intersectedSolid == ray.OriginSolid ) { isInsideSolid = true; }
@@ -125,7 +174,7 @@ namespace rt004
             Vector3d Ea = intersectedSolid.Material.Colour(intersectedSolid.GetUVCoords(intersectionPoint, isInsideSolid)) * ambientCoeficient;
 
             Vector3d normal = intersectedSolid.GetNormal(intersectionPoint, isInsideSolid).Normalized();
-            
+
             foreach (ILightSource lightSource in lightSources)
             {
                 int success = 0;
@@ -134,7 +183,7 @@ namespace rt004
                 Vector3d directionToLight = -lightSource.DirectionToLight(intersectionPoint); //
                 //diffuse component
                 double dotDiffusion = Vector3d.Dot(directionToLight, normal);
-                Vector3d Ed = lightSource.Intensity * intersectedSolid.Material.Colour(intersectedSolid.GetUVCoords(intersectionPoint, isInsideSolid)) * intersectedSolid.Material.DiffusionCoefficient * (dotDiffusion > -1.0e-6 ? dotDiffusion : 0); ;
+                Vector3d Ed = lightSource.Intensity * intersectedSolid.Material.Colour(intersectedSolid.GetUVCoords(intersectionPoint, isInsideSolid))* intersectedSolid.Material.DiffusionCoefficient * (dotDiffusion > -1.0e-6 ? dotDiffusion : 0); ;
 
                 //specular component
                 double dotReflection = Vector3d.Dot((2 * normal * Vector3d.Dot(normal, directionToLight) - directionToLight).Normalized(), ray.Direction);
@@ -152,7 +201,7 @@ namespace rt004
 
             return Ea;
         }
-
+        */
         public static bool Shadow(ISolid sourceSolid, Vector3d point, ILightSource light, List<ISolid> solids) //directional light
         {
             bool intersects = false;
@@ -170,7 +219,7 @@ namespace rt004
             }
             return intersects;
         }
-
+        /*
         public static Vector3d Shade(Scene scene, Ray ray, int depth, int maxdepth)
         {
 
@@ -237,6 +286,161 @@ namespace rt004
             color += (reflectionColor * (1 - intersectedSolid.Material.Transparency)) + (refractionColor * intersectedSolid.Material.Transparency);
 
             return color;
+        }
+        */
+
+        public static bool ShadowHierarchy(Vector3d intersectionPoint, ILightSource light, Node intersectedSolid)
+        {
+            bool intersects = false;
+            Ray shadowRay = new Ray(intersectionPoint, (light.DirectionToLight(intersectionPoint)), intersectedSolid.Solid); //this could pose a problem? what if the direction to light is outside and the origin inside? not sure if valid thought
+
+            foreach (var child in intersectedSolid.Nodes)
+            {
+                _checkShadowRecursiveHierarchy(ref intersects, intersectedSolid, child, shadowRay);
+            }
+
+            return intersects;
+        }
+
+        private static void _checkShadowRecursiveHierarchy(ref bool intersects, Node sourceSolid, Node solid, Ray shadowRay)
+        {
+            if(intersects == true)
+            {
+                return;
+            }
+
+            if (solid.Solid is not null)
+            {
+                if(solid != sourceSolid)
+                {
+                    double? intersection = solid.Solid.Intersection(shadowRay);
+                    if (intersection is not null)
+                    {
+                        intersects = true;
+                        return;
+                    }
+                }
+            }
+
+            foreach (var sol in solid.Nodes)
+            {
+                _checkShadowRecursiveHierarchy(ref intersects, sourceSolid, sol, shadowRay);
+            }
+        }
+
+        public static Vector3d ComputeHierarchy(Scene scene, ISolid intersectedSolid,
+            Vector3d intersectionPoint, bool isInsideSolid, Vector3d normal, Ray ray, int sampleSize)
+        {
+            //ambient light
+            Vector3d Ea = intersectedSolid.Material.Colour(intersectedSolid.GetUVCoords(intersectionPoint, isInsideSolid)) * scene.AmbientCoefficient;
+
+            foreach (ILightSource lightSource in scene.LightSources)
+            {
+                int success = 0;
+                int shadowRayNum = sampleSize;
+
+                Vector3d directionToLight = -lightSource.DirectionToLight(intersectionPoint); //
+                //diffuse component
+                double dotDiffusion = Vector3d.Dot(directionToLight, normal);
+                Vector3d Ed = lightSource.Intensity * intersectedSolid.Material.Colour(intersectedSolid.GetUVCoords(intersectionPoint, isInsideSolid)) * intersectedSolid.Material.DiffusionCoefficient * (dotDiffusion > -1.0e-6 ? dotDiffusion : 0); ;
+
+                //specular component
+                double dotReflection = Vector3d.Dot((2 * normal * Vector3d.Dot(normal, directionToLight) - directionToLight).Normalized(), ray.Direction);
+                Vector3d Es = lightSource.Intensity * lightSource.Color * intersectedSolid.Material.SpecularCoefficient * Math.Pow((dotReflection > 0 ? dotReflection : 0), intersectedSolid.Material.Glossiness);
+                /*
+                for (int i = 0; i < shadowRayNum; i++)
+                {
+                    if (!ShadowHierarchy(intersectionPoint, lightSource, scene.Root))
+                    {
+                        success++;
+                    }
+                }
+                Ea += (Ed + Es) * success / shadowRayNum;
+                */               //shadows are off
+                Ea += (Ed + Es); //delete this later, when you want to uncomment shadows
+            }
+            return Ea;
+        }
+
+        public static Vector3d ShadeHierarchy(Scene scene, Ray ray, int depth, int sampleSize, int maxdepth) 
+        {
+
+            (ISolid? solid, double? rayLenght, Matrix4d invertedTransformationMatrix) intersection = Phong.ThrowRay(ray, scene.Root);
+            if (intersection.solid == null || intersection.rayLenght == null)
+            {
+                return new Vector3d(0, 0, 0); //return scene background // no interscections
+            }
+
+            Console.WriteLine(intersection.invertedTransformationMatrix);
+            Matrix4d invTrans = intersection.invertedTransformationMatrix; //inverted transformation matrix
+
+            //try transforming the ray itself here, ThrowRay doesnt transform the ray, it only returns the transformation matrix
+            ray = ray.TransformRay(invTrans);
+
+            ISolid intersectedSolid = intersection.solid;
+
+            bool isInsideSolid = false;
+            if (intersectedSolid == ray.OriginSolid) { isInsideSolid = true; }
+
+            Vector3d intersectedPoint = (Vector3d)(ray.Origin + (intersection.rayLenght * ray.Direction));
+            Vector3d color = default; //result color
+            
+            //transform normal
+            Vector4d tmpNormal = (Matrix4d.Transpose(invTrans) * new Vector4d (intersectedSolid.GetNormal(intersectedPoint, isInsideSolid))).Normalized();
+            Vector3d normal = new Vector3d(tmpNormal.X, tmpNormal.Y, tmpNormal.Z);
+            //Vector3d normal = (Matrix3d.Transpose(invTrans) * intersectedSolid.GetNormal(intersectedPoint, isInsideSolid)).Normalized();
+
+            foreach (ILightSource light in scene.LightSources)
+            {
+                color += ComputeHierarchy(scene, intersectedSolid, intersectedPoint, isInsideSolid, normal, ray, sampleSize);//ambient coeffient should be given 
+            }
+
+            if (depth > maxdepth)
+            {
+                return color;
+            }
+            /*
+            //reflection
+            Vector3d reflectionColor = default;
+            if (intersectedSolid.Material.SpecularCoefficient > 0)
+            {
+                Vector3d reflectionVector = 2 * Vector3d.Dot(normal, -(ray.Direction)) * normal + ray.Direction;
+                reflectionColor += intersectedSolid.Material.SpecularCoefficient * ShadeHierarchy(scene, new Ray(intersectedPoint, reflectionVector, ray.OriginSolid), depth + 1, sampleSize, maxdepth);
+            }
+
+            //refraction
+            Vector3d refractionColor = default;
+            double originRefractiveIndex;
+            if (ray.OriginSolid != null) { originRefractiveIndex = ray.OriginSolid.Material.RefractiveIndex; }
+            else { originRefractiveIndex = 1; }
+
+            double intersectedSolidRefractiveIndex;
+            if (ray.OriginSolid != null) { intersectedSolidRefractiveIndex = ray.OriginSolid.Material.RefractiveIndex; }
+            else { intersectedSolidRefractiveIndex = intersectedSolid.Material.RefractiveIndex; }
+
+            double kR = originRefractiveIndex / intersectedSolidRefractiveIndex; //refractive coeficient
+
+            Vector3d normalVector = -normal; //redundant, refactor later
+            double normalRayDotProduct = Vector3d.Dot(normalVector, -ray.Direction);
+
+            double refractiveVectorAngleCosine = Math.Sqrt(1 - (kR * kR) * (1 - (normalRayDotProduct * normalRayDotProduct)));
+
+            if ((originRefractiveIndex > intersectedSolidRefractiveIndex) && refractiveVectorAngleCosine <= (intersectedSolidRefractiveIndex / originRefractiveIndex))
+            {
+                return color;
+            }
+            else
+            {
+                Vector3d refractiveVector = (kR * normalRayDotProduct - refractiveVectorAngleCosine) * normalVector - kR * (-ray.Direction);
+                Ray refractedRay = new(intersectedPoint, refractiveVector, intersectedSolid);
+
+                refractionColor += ShadeHierarchy(scene, refractedRay, depth + 1, sampleSize, maxdepth);
+            }
+
+            color += (reflectionColor * (1 - intersectedSolid.Material.Transparency)) + (refractionColor * intersectedSolid.Material.Transparency);
+            */
+            return color;
+            
         }
     }
 }

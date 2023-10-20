@@ -139,4 +139,83 @@ namespace rt004
 
 
     }
+    public class Cube : ISolid
+    {
+        public IMaterial Material { get; }
+        public Vector3d Origin { get; set; }
+        public double Size { get; set; }
+        public Vector3d MinVertex { get; set; }
+        public Vector3d MaxVertex { get; set; }
+        public Cube(IMaterial material, Vector3d origin, double size)
+        {
+            Material = material;
+            Origin = origin;
+            Size = size;
+            MinVertex = (new Vector3d(-1, -1, -1) * Size) + Origin; //not sure if this is correct
+            MaxVertex = (new Vector3d(1, 1, 1) * Size) + Origin;
+        }
+        public Vector3d GetNormal(Vector3d point, bool isInside)
+        {
+            Vector3d normal = new Vector3d(0, 0, 0);
+            //checks which face is the point located at
+            if (Origin.X + Size == point.X)
+            {
+                normal.X = 1;
+            }
+            else if (Origin.Y + Size == point.Y)
+            {
+                normal.Y = 1;
+            }
+            else if (Origin.Z + Size == point.Z)
+            {
+                normal.Z = 1;
+            }
+            if(isInside)
+            {
+                normal = -normal;
+            }
+            return normal;
+            throw new Exception("bad calculation at Cube GetNormal()");
+        }
+
+        public Vector2d GetUVCoords(Vector3d point, bool isInside)
+        {
+
+            throw new NotImplementedException();
+        }
+
+        public double? Intersection(Ray ray)
+        {
+            Vector3d tMin = (MinVertex - ray.Origin) / ray.Direction;
+            Vector3d tMax = (MaxVertex - ray.Origin) / ray.Direction;
+
+            Vector3d t1 = Vector3d.MagnitudeMin(tMin, tMax);
+            Vector3d t2 = Vector3d.MagnitudeMax(tMin, tMax);
+
+            double tNear = Math.Max(Math.Max(t1.X, t1.Y), t1.Z);
+            double tFar = Math.Min(Math.Min(t2.X, t2.Y), t2.Z);
+
+            throw new NotImplementedException();
+
+        }
+    }
+    public class Cylinder : ISolid
+    {
+        public IMaterial Material => throw new NotImplementedException();
+
+        public Vector3d GetNormal(Vector3d point, bool isInside)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Vector2d GetUVCoords(Vector3d point, bool isInside)
+        {
+            throw new NotImplementedException();
+        }
+
+        public double? Intersection(Ray ray)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
