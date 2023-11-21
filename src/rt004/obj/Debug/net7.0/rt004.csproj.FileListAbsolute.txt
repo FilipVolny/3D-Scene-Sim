@@ -32,3 +32,4 @@ C:\Users\Filip\source\repos\RT004\src\rt004\obj\Debug\net7.0\refint\rt004.dll
 C:\Users\Filip\source\repos\RT004\src\rt004\obj\Debug\net7.0\rt004.pdb
 C:\Users\Filip\source\repos\RT004\src\rt004\obj\Debug\net7.0\rt004.genruntimeconfig.cache
 C:\Users\Filip\source\repos\RT004\src\rt004\obj\Debug\net7.0\ref\rt004.dll
+C:\Users\Filip\source\repos\RT004\src\rt004\bin\Debug\net7.0\rt004.dll.config
