@@ -20,6 +20,14 @@ namespace rt004
         double Height { get; }
         double Width { get; }
         int MaxRayTracingDepth { get; set; }
+        /// <summary>
+        /// Constructor for the Camera object
+        /// </summary>
+        /// <param name="origin">Point in 3d space, where the camera is placed. Given by a Vector3d.</param>
+        /// <param name="forwardDirection">Camera forward facing direction. Given by a Vector3d.</param>
+        /// <param name="rotation">Camera rotation. Given by a double. </param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
         public Camera(Vector3d origin, Vector3d forwardDirection, double rotation, double width, double height)
         {
             Origin = origin;
@@ -38,6 +46,14 @@ namespace rt004
             return ray;
         }
         */
+        /// <summary>
+        /// Casts a single ray from 
+        /// </summary>
+        /// <param name="pixelWidth">Which column of pixels is used to cast the ray</param>
+        /// <param name="pixelHeight"></param>
+        /// <param name="xPart">Used to compute the width part of anti-aliasing</param>
+        /// <param name="yPart"></param>
+        /// <returns></returns>
         private Ray _getRayFromCameraAntiAliasing(int pixelWidth, int pixelHeight, double xPart, double yPart)
         {
             return new Ray(Origin, (ForwardDirection + xPart * (Width / pixelWidth) * RightDirection + yPart * (Height / pixelHeight) * UpDirection).Normalized(), null); //todo what if the camera is inside a solid

@@ -75,8 +75,16 @@ internal class Program
         */
 
 
+        Console.Write("Enter the config file name:\n");
         //string? configFileName = Console.ReadLine();
+        
         string? configFileName = "ctrans.json"; // for testing
+
+        if (!File.Exists(configFileName))
+        {
+            Console.Write("Config file does not exist.\nAbort\n");
+            return;
+        }
 
         Scene scene = JsonParser.ParseJsonConfig(configFileName);
 
@@ -97,10 +105,12 @@ internal class Program
                 fi.PutPixel(x, y, color);
             }
         }
-        string fileName = "ctrans.pfm";
 
-        fi.SavePFM(fileName);
+        string outputFileName = configFileName.Split('.')[0] + ".pfm";
 
+        fi.SavePFM(outputFileName);
+        
         Console.WriteLine("HDR image is finished.");
+        Console.WriteLine("File was saved as " + '"' + outputFileName + '"');
     }
 }

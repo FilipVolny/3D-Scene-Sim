@@ -116,6 +116,10 @@ namespace rt004
                 {
                     solid = (new Plane(materials[nodeJson.solid.materialName], ListToVector(nodeJson.solid.origin), ListToVector(nodeJson.solid.normalVector)));
                 }
+                else if (nodeJson.solid.type == "cube")
+                {
+                    solid = (new Cube(materials[nodeJson.solid.materialName]));
+                }
             }
             Node currentNode = new Node(transformationMatrix, new List<Node>(), solid);
             List<Node> children = new List<Node>();

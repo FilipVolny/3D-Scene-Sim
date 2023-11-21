@@ -1,11 +1,4 @@
 ﻿using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
-using static rt004.Program;
 
 namespace rt004
 {
@@ -38,7 +31,7 @@ namespace rt004
         }
         */
         
-        //TODO throw ray does not work yet 
+        //TODO throw ray does not work yet --4.11.23 I dont remember why this is here? Great.
         public static (ISolid?, double?, Matrix4d) ThrowRay(Ray ray, Node root)
         {
             (ISolid?, double?, Matrix4d) result = new(null, null, Matrix4d.Identity);
@@ -289,6 +282,14 @@ namespace rt004
         }
         */
 
+        /// <summary>
+        /// Checks if there is a solid blocking a r ILighSource
+        /// </summary>
+        /// <param name="intersectionPoint"></param>
+        /// <param name="light"></param>
+        /// <param name="intersectedSolid"></param>
+        /// <returns> True if there is a solid blocking the ray from the intersectionPoint</returns>
+
         public static bool ShadowHierarchy(Vector3d intersectionPoint, ILightSource light, Node intersectedSolid)
         {
             bool intersects = false;
@@ -371,7 +372,7 @@ namespace rt004
                 return new Vector3d(0, 0, 0); //return scene background // no interscections
             }
 
-            Console.WriteLine(intersection.invertedTransformationMatrix);
+            //Console.WriteLine(intersection.invertedTransformationMatrix); debug, delete l8r
             Matrix4d invTrans = intersection.invertedTransformationMatrix; //inverted transformation matrix
 
             //try transforming the ray itself here, ThrowRay doesnt transform the ray, it only returns the transformation matrix
@@ -386,7 +387,7 @@ namespace rt004
             Vector3d color = default; //result color
             
             //transform normal
-            Vector4d tmpNormal = (Matrix4d.Transpose(invTrans) * new Vector4d (intersectedSolid.GetNormal(intersectedPoint, isInsideSolid))).Normalized();
+            Vector4d tmpNormal = (Matrix4d.Transpose(invTrans) * new Vector4d (intersectedSolid.GetNormal(intersectedPoint, isInsideSolid),1)).Normalized();
             Vector3d normal = new Vector3d(tmpNormal.X, tmpNormal.Y, tmpNormal.Z);
             //Vector3d normal = (Matrix3d.Transpose(invTrans) * intersectedSolid.GetNormal(intersectedPoint, isInsideSolid)).Normalized();
 

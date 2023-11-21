@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -142,31 +143,47 @@ namespace rt004
     public class Cube : ISolid
     {
         public IMaterial Material { get; }
-        public Vector3d Origin { get; set; }
-        public double Size { get; set; }
+        //public Vector3d Origin { get; set; }
+        //public double Size { get; set; }
         public Vector3d MinVertex { get; set; }
         public Vector3d MaxVertex { get; set; }
-        public Cube(IMaterial material, Vector3d origin, double size)
+        public Cube(IMaterial material/*, Vector3d origin, double size*/)
         {
             Material = material;
-            Origin = origin;
-            Size = size;
-            MinVertex = (new Vector3d(-1, -1, -1) * Size) + Origin; //not sure if this is correct
-            MaxVertex = (new Vector3d(1, 1, 1) * Size) + Origin;
+            //Origin = origin; redundant, will try to use just the transformation matrix to implement this one, delete later, same with size
+            //Size = size;
+
+            //Origin = new(0.5, 0.5, 0.5);
+            MinVertex = (new (0,0,0) /** Size*/); //not sure if this is correct
+            MaxVertex = (new (1, 1, 1) /** Size*/);
         }
         public Vector3d GetNormal(Vector3d point, bool isInside)
         {
+
+            //TODO, not sure if this makes sense , try to figure it out and remake
             Vector3d normal = new Vector3d(0, 0, 0);
             //checks which face is the point located at
-            if (Origin.X + Size == point.X)
+            if (MinVertex.X == point.X)
+            {
+                normal.X = -1;
+            }
+            else if (MaxVertex.X == point.X)
             {
                 normal.X = 1;
             }
-            else if (Origin.Y + Size == point.Y)
+            else if (MinVertex.Y == point.Y)
+            {
+                normal.Y = -1;
+            }
+            else if (MaxVertex.Y == point.Y)
             {
                 normal.Y = 1;
             }
-            else if (Origin.Z + Size == point.Z)
+            else if (MinVertex.Z == point.Z)
+            {
+                normal.Z = -1;
+            }
+            else if (MaxVertex.Z == point.Z)
             {
                 normal.Z = 1;
             }
@@ -175,28 +192,45 @@ namespace rt004
                 normal = -normal;
             }
             return normal;
-            throw new Exception("bad calculation at Cube GetNormal()");
         }
 
         public Vector2d GetUVCoords(Vector3d point, bool isInside)
         {
 
+            return new Vector2d(0, 0);
             throw new NotImplementedException();
         }
-
         public double? Intersection(Ray ray)
         {
+            //Console.WriteLine("hey");
+
             Vector3d tMin = (MinVertex - ray.Origin) / ray.Direction;
+
             Vector3d tMax = (MaxVertex - ray.Origin) / ray.Direction;
 
             Vector3d t1 = Vector3d.MagnitudeMin(tMin, tMax);
+
             Vector3d t2 = Vector3d.MagnitudeMax(tMin, tMax);
 
             double tNear = Math.Max(Math.Max(t1.X, t1.Y), t1.Z);
             double tFar = Math.Min(Math.Min(t2.X, t2.Y), t2.Z);
 
-            throw new NotImplementedException();
-
+            if (tNear > tFar)
+            {
+                return null;
+            }
+            else
+            {
+                /*
+                Console.WriteLine(tMin);
+                Console.WriteLine(tMax);
+                Console.WriteLine(t1);
+                Console.WriteLine(t2);
+                Console.WriteLine(tNear);
+                Console.WriteLine(tFar);
+                */
+                return tNear;
+            }
         }
     }
     public class Cylinder : ISolid
