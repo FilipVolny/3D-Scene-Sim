@@ -74,19 +74,19 @@ internal class Program
         demo.Solids.Add(Bleep);
         */
 
-
-        Console.Write("Enter the config file name:\n");
-        //string? configFileName = Console.ReadLine();
+        string inputDir = "Scenes";
+        Console.Write("Enter the config file name from the " + '"' + inputDir + '"' + " directory:\n");
         
-        string? configFileName = "ctrans.json"; // for testing
-
-        if (!File.Exists(configFileName))
+        //string? configFileName = Console.ReadLine();
+        string? configFile = "ctrans.json"; // for testing
+        string? configPath = inputDir + "/" + configFile;
+        if (!File.Exists(configPath))
         {
             Console.Write("Config file does not exist.\nAbort\n");
             return;
         }
 
-        Scene scene = JsonParser.ParseJsonConfig(configFileName);
+        Scene scene = JsonParser.ParseJsonConfig(configPath);
 
         FloatImage fi = new FloatImage(1200, 1200, 3);
         int px = 1;
@@ -106,11 +106,12 @@ internal class Program
             }
         }
 
-        string outputFileName = configFileName.Split('.')[0] + ".pfm";
+        string outputFile = configFile.Split('.')[0] + ".pfm";
+        string outputDir = "Output";
 
-        fi.SavePFM(outputFileName);
+        fi.SavePFM(outputFile);
         
         Console.WriteLine("HDR image is finished.");
-        Console.WriteLine("File was saved as " + '"' + outputFileName + '"');
+        Console.WriteLine("File was saved as " + '"' + outputFile + '"' + " in the " + '"' + outputDir + '"' + " directory.");
     }
 }
