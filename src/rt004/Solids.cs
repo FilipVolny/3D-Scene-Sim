@@ -124,10 +124,12 @@ namespace rt004
             if (offset <= 0) { return null; } //changed from < to <=, not sure if it does anything made more sense in my head at time of writing
             return offset;
         }
+
         public Vector3d GetNormal(Vector3d point, bool isInside)
         {
             return NormalVector;
         }
+
         public Vector2d GetUVCoords(Vector3d point, bool isInside) //dolaterbater
         {
             if(Vector3d.Dot(_e2, point) is double.NaN)
@@ -137,9 +139,8 @@ namespace rt004
 
             return new Vector2d(Vector3d.Dot(_e2, point), Vector3d.Dot(_e1, point));
         }
-
-
     }
+
     public class Box : ISolid
     {
         public IMaterial Material { get; }
@@ -153,13 +154,11 @@ namespace rt004
             Origin = origin;
             //Size = size;
 
-            //Origin = new(0.5, 0.5, 0.5);
-            MinVertex = (new Vector3d(0,0,0) /* * Size*/) + Origin; //not sure if this is correct
-            MaxVertex = (new Vector3d(1, 1, 1) /* * Size */) + Origin;
+            MinVertex = (new Vector3d(-0.5,-0.5,-0.5) /* * Size*/) + this.Origin; //not sure if this is correct
+            MaxVertex = (new Vector3d(0.5, 0.5, 0.5) /* * Size */) + this.Origin;
         }
         public Vector3d GetNormal(Vector3d point, bool isInside)
         {
-
             //TODO, not sure if this makes sense , try to figure it out and remake
             Vector3d normal = new Vector3d(0, 0, 0);
             //checks which face is the point located at
@@ -171,7 +170,7 @@ namespace rt004
             {
                 normal.X = 1;
             }
-            else if (MinVertex.Y == point.Y)
+            if (MinVertex.Y == point.Y)
             {
                 normal.Y = -1;
             }
@@ -179,7 +178,7 @@ namespace rt004
             {
                 normal.Y = 1;
             }
-            else if (MinVertex.Z == point.Z)
+            if (MinVertex.Z == point.Z)
             {
                 normal.Z = -1;
             }
@@ -191,7 +190,7 @@ namespace rt004
             {
                 normal = -normal;
             }
-            return normal;
+            return -normal.Normalized();
         }
 
         public Vector2d GetUVCoords(Vector3d point, bool isInside)
@@ -200,38 +199,40 @@ namespace rt004
             return new Vector2d(0, 0);
             throw new NotImplementedException();
         }
+
         public double? Intersection(Ray ray)
         {
-            //Console.WriteLine("hey");
+            double tx1 = (MinVertex.X - ray.Origin.X) / ray.Direction.X;
+            double tx2 = (MaxVertex.X - ray.Origin.X) / ray.Direction.X;
+            
+            double tmin = Math.Min(tx1, tx2);
+            double tmax = Math.Max(tx1, tx2);
 
-            Vector3d tMin = (MinVertex - ray.Origin) / ray.Direction;
+            double ty1 = (MinVertex.Y - ray.Origin.Y) / ray.Direction.Y;
+            double ty2 = (MaxVertex.Y - ray.Origin.Y) / ray.Direction.Y;
 
-            Vector3d tMax = (MaxVertex - ray.Origin) / ray.Direction;
+            tmin = Math.Max(tmin, Math.Min(ty1, ty2));
+            tmax = Math.Min(tmax, Math.Max(ty1, ty2));
 
-            Vector3d t1 = Vector3d.MagnitudeMin(tMin, tMax);
+            double tz1 = (MinVertex.Z - ray.Origin.Z) / ray.Direction.Z;
+            double tz2 = (MaxVertex.Z - ray.Origin.Z) / ray.Direction.Z;
 
-            Vector3d t2 = Vector3d.MagnitudeMax(tMin, tMax);
+            tmin = Math.Max(tmin, Math.Min(tz1, tz2));
+            tmax = Math.Min(tmax, Math.Max(tz1, tz2));
 
-            double tNear = Math.Max(Math.Max(t1.X, t1.Y), t1.Z);
-            double tFar = Math.Min(Math.Min(t2.X, t2.Y), t2.Z);
-
-            if (tNear > tFar)
+            if (tmin > tmax)
             {
                 return null;
             }
-            else
+
+            if( tmin < 0)
             {
-                /*
-                Console.WriteLine(tMin);
-                Console.WriteLine(tMax);
-                Console.WriteLine(t1);
-                Console.WriteLine(t2);
-                Console.WriteLine(tNear);
-                Console.WriteLine(tFar);
-                */
-                return tNear;
+                return tmax;
             }
+
+            return tmin;
         }
+
     }
     public class Cylinder : ISolid
     {
