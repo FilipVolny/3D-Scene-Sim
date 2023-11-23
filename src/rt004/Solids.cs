@@ -143,19 +143,19 @@ namespace rt004
     public class Box : ISolid
     {
         public IMaterial Material { get; }
-        //public Vector3d Origin { get; set; }
+        public Vector3d Origin { get; set; }
         //public double Size { get; set; }
         public Vector3d MinVertex { get; set; }
         public Vector3d MaxVertex { get; set; }
-        public Box(IMaterial material/*, Vector3d origin, double size*/)
+        public Box(IMaterial material, Vector3d origin /*,double size*/)
         {
             Material = material;
-            //Origin = origin; redundant, will try to use just the transformation matrix to implement this one, delete later, same with size
+            Origin = origin;
             //Size = size;
 
             //Origin = new(0.5, 0.5, 0.5);
-            MinVertex = (new (0,0,0) /** Size*/); //not sure if this is correct
-            MaxVertex = (new (1, 1, 1) /** Size*/);
+            MinVertex = (new Vector3d(0,0,0) /* * Size*/) + Origin; //not sure if this is correct
+            MaxVertex = (new Vector3d(1, 1, 1) /* * Size */) + Origin;
         }
         public Vector3d GetNormal(Vector3d point, bool isInside)
         {
