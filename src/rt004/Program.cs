@@ -109,7 +109,7 @@ internal class Program
         string outputFile = configFile.Split('.')[0] + ".pfm";
         string outputDir = "Output";
 
-        fi.SavePFM(outputFile);
+        fi.SavePFM(outputDir + "/" + outputFile);
         
         Console.WriteLine("HDR image is finished.");
         Console.WriteLine("File was saved as " + '"' + outputFile + '"' + " in the " + '"' + outputDir + '"' + " directory.");
