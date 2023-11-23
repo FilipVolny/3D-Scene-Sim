@@ -67,7 +67,7 @@ internal class Program
         tmp.LightSources.Add(light);
 
         //testing boxes
-        Box Adam = new Box(blu);
+        Box Adam = new Box(blu, new Vector3d(0, 0, 0));
         tmp.Solids.Add(Adam);
         //demo.LightSources.Add(pointLt);
         //demo.LightSources.Add(light2);
