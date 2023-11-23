@@ -83,11 +83,10 @@ namespace rt004
             return pixels;
         }
         */
-        /*redundant
-        public Vector3d[,] ParallelRayCast(Scene scene, int pixelWidth, int pixelHeight) //Yes Anti-aliasing
+        
+        public Vector3d[,] ParallelRayCast(Scene scene, int sampleSize, int pixelWidth, int pixelHeight) //Yes Anti-aliasing
         {
             int numberOfAvailableProcessors = Environment.ProcessorCount - 1;
-
             Random rnd = new();
             Vector3d[,] pixels = new Vector3d[pixelWidth, pixelHeight];
 
@@ -100,18 +99,18 @@ namespace rt004
                     {
                         Vector3d color = Vector3d.Zero;
                         List<int> possibleRows = new();
-                        for (int u = 0; u < SamplePerPixel; u++)
+                        for (int u = 0; u < sampleSize; u++)
                         {
                             possibleRows.Add(u);
                         }
-                        for (int u = 0; u < SamplePerPixel; u++)
+                        for (int u = 0; u < sampleSize; u++)
                         {
                             int index = rnd.Next(0, possibleRows.Count);
-                            double xPart = x - 0.5 - pixelWidth / 2 + possibleRows[index] / SamplePerPixel + rnd.NextDouble() / SamplePerPixel;
+                            double xPart = x - 0.5 - pixelWidth / 2 + possibleRows[index] / sampleSize + rnd.NextDouble() / sampleSize;
                             possibleRows.RemoveAt(index);
 
-                            double yPart = y - 0.5 - pixelHeight / 2 + u / SamplePerPixel + rnd.NextDouble() / SamplePerPixel;
-                            Ray ray = GetRayFromCameraAntiAliasing(pixelWidth, pixelHeight, xPart, yPart);
+                            double yPart = y - 0.5 - pixelHeight / 2 + u / sampleSize + rnd.NextDouble() / sampleSize;
+                            Ray ray = _getRayFromCameraAntiAliasing(pixelWidth, pixelHeight, xPart, yPart);
 
                             (ISolid?, double?) intersection = Phong.ThrowRay(ray, scene.Solids);
 
@@ -120,13 +119,13 @@ namespace rt004
                                 color += Phong.Shade(scene, ray, 0, MaxRayTracingDepth) ;
                             }
                         }
-                        pixels[x, y] = color / SamplePerPixel;
+                        pixels[x, y] = color / sampleSize;
                     }
                 }
             });
             return pixels;
         }
-        */
+        /*
         public Vector3d[,] ParallelRayCastHierarchy(Scene scene, int sampleSize, int pixelWidth, int pixelHeight) //Yes Anti-aliasing
         {
             int numberOfAvailableProcessors = Environment.ProcessorCount - 1;
@@ -158,19 +157,19 @@ namespace rt004
 
                             color += Phong.ShadeHierarchy(scene, ray, 0, sampleSize, MaxRayTracingDepth);
 
-                            /* this was here before, doesnt make sense? should just delete probs
-                            (ISolid?, double?, Matrix3d) intersection = Phong.ThrowRay(ray, scene.Root);
-                            if (intersection.Item1 != null && intersection.Item2 != null)
-                            {
-                                color += Phong.ShadeHierarchy(scene, ray, 0, MaxRayTracingDepth);
-                            }*/
+                            // this was here before, doesnt make sense? should just delete probs
+                            //(ISolid?, double?, Matrix3d) intersection = Phong.ThrowRay(ray, scene.Root);
+                            //if (intersection.Item1 != null && intersection.Item2 != null)
+                            //{
+                            //    color += Phong.ShadeHierarchy(scene, ray, 0, MaxRayTracingDepth);
+                            //}
                         }
                         pixels[x, y] = color / sampleSize;
                     }
                 }
             });
             return pixels;
-        }
+        }*/
         /* redundant
         public Vector3d[,] RayCast(Scene scene, int pixelWidth, int pixelHeight)
         {

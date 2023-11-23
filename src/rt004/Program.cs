@@ -91,7 +91,7 @@ internal class Program
         FloatImage fi = new FloatImage(1200, 1200, 3);
         int px = 1;
         int sampleSize = 1; //sample per pixel
-        Vector3d[,] grid = scene.Camera.ParallelRayCastHierarchy(scene, sampleSize, fi.Width / px, fi.Height / px);
+        Vector3d[,] grid = scene.Camera.ParallelRayCast(scene, sampleSize, fi.Width / px, fi.Height / px);
 
         for (int y = 0; y < fi.Height; y++)
         {
