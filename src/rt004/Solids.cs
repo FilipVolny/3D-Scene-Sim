@@ -140,14 +140,14 @@ namespace rt004
 
 
     }
-    public class Cube : ISolid
+    public class Box : ISolid
     {
         public IMaterial Material { get; }
         //public Vector3d Origin { get; set; }
         //public double Size { get; set; }
         public Vector3d MinVertex { get; set; }
         public Vector3d MaxVertex { get; set; }
-        public Cube(IMaterial material/*, Vector3d origin, double size*/)
+        public Box(IMaterial material/*, Vector3d origin, double size*/)
         {
             Material = material;
             //Origin = origin; redundant, will try to use just the transformation matrix to implement this one, delete later, same with size

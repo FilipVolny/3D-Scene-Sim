@@ -65,6 +65,10 @@ internal class Program
         tmp.Solids.Add(spherocious2);
         tmp.Solids.Add(babz);
         tmp.LightSources.Add(light);
+
+        //testing boxes
+        
+
         //demo.LightSources.Add(pointLt);
         //demo.LightSources.Add(light2);
 
