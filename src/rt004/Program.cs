@@ -24,8 +24,8 @@ internal class Program
     */
     static void Main(string[] args)
     {
-        /*
-        Scene demo = new Scene(0.2, new Camera((0,0,0), (0,1,0), 0, 2, 2)); //ambientLight, camera(origin, forward, up, width, height)
+        
+        Scene tmp = new Scene(0.2, new Camera((0,0,0), (0,1,0), 0, 2, 2)); //ambientLight, camera(origin, forward, up, width, height)
 
         Material blu = new Material(new Vector3d(0.3, 0.3, 1), 1, 0, 5, 0, 0); //color, diffusionCoeff, specularCoeff, glossiness 
         Material green = new Material(new Vector3d(0, 1, 0), 0.5, 0.5, 5, 0, 0);
@@ -55,25 +55,31 @@ internal class Program
         //DirectionLightSource light2 = new((0, 500, 300), (1, 1, 1), 0.25);
 
         //demo.Solids.Add(pBack);
-        demo.Solids.Add(pFloor);
+        tmp.Solids.Add(pFloor);
         //demo.Solids.Add(pRight);
         //demo.Solids.Add(pLeft);
         //demo.Solids.Add(pCeiling);
         //demo.Solids.Add(frontWall);
 
-        demo.Solids.Add(spherocious);
-        demo.Solids.Add(spherocious2);
-        demo.Solids.Add(babz);
-        demo.LightSources.Add(light);
+        tmp.Solids.Add(spherocious);
+        tmp.Solids.Add(spherocious2);
+        tmp.Solids.Add(babz);
+        tmp.LightSources.Add(light);
         //demo.LightSources.Add(pointLt);
         //demo.LightSources.Add(light2);
 
         Material plush = new Material((1, 0.5, 0), 0.9, 0.1, 500, 0, 0);
         Sphere Bleep = new Sphere(plush, new Vector3d(-10, 60, -5), 5);
 
-        demo.Solids.Add(Bleep);
-        */
+        tmp.Solids.Add(Bleep);
 
+        ///////////////////////////////////////////
+
+
+
+
+        //////////////////////////////
+        /*
         string inputDir = "Scenes";
         Console.Write("Enter the config file name from the " + '"' + inputDir + '"' + " directory:\n");
         
@@ -87,6 +93,12 @@ internal class Program
         }
 
         Scene scene = JsonParser.ParseJsonConfig(configPath);
+        */
+        //testing; delete later, everything else stays the same 
+        Scene scene = tmp; //
+        string configFile = "nonHiearchyModel_tmp0";
+        //
+
 
         FloatImage fi = new FloatImage(1200, 1200, 3);
         int px = 1;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK.Mathematics;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design.Serialization;
 using System.Linq;
@@ -16,8 +17,8 @@ namespace rt004
         public List<ILightSource> LightSources { get; }
         public Node Root { get; }
         
-        
-        /* Redundant code
+
+        //Non hiearchical model
         public Scene(double ambientCoefficient, Camera camera)
         {
             AmbientCoefficient = ambientCoefficient;
@@ -25,8 +26,13 @@ namespace rt004
             Solids = new List<ISolid>();
             LightSources = new List<ILightSource>();
             Materials = new Dictionary<string, IMaterial>();
+            // only here for the sake of backwards compatibility
+            Root = new Node( new Matrix4d(), null, null);
+
+
         }
-        */
+        
+        //Hiearchical model
         public Scene(double ambientCoefficient, Camera camera, Dictionary<string, IMaterial> materials, Node root, List<ILightSource> lightSources)
         {
             AmbientCoefficient = ambientCoefficient;
