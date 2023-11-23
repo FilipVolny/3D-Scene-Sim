@@ -145,17 +145,17 @@ namespace rt004
     {
         public IMaterial Material { get; }
         public Vector3d Origin { get; set; }
-        //public double Size { get; set; }
+        public double Size { get; set; }
         public Vector3d MinVertex { get; set; }
         public Vector3d MaxVertex { get; set; }
-        public Box(IMaterial material, Vector3d origin /*,double size*/)
+        public Box(IMaterial material, Vector3d origin, double size)
         {
             Material = material;
             Origin = origin;
-            //Size = size;
+            Size = size;
 
-            MinVertex = (new Vector3d(-0.5,-0.5,-0.5) /* * Size*/) + this.Origin; //not sure if this is correct
-            MaxVertex = (new Vector3d(0.5, 0.5, 0.5) /* * Size */) + this.Origin;
+            MinVertex = (new Vector3d(-0.5,-0.5,-0.5)  * Size) + this.Origin; //not sure if this is correct
+            MaxVertex = (new Vector3d(0.5, 0.5, 0.5)  * Size ) + this.Origin;
         }
         public Vector3d GetNormal(Vector3d point, bool isInside)
         {

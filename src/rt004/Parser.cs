@@ -118,7 +118,7 @@ namespace rt004
                 }
                 else if (nodeJson.solid.type == "cube")
                 {
-                    solid = (new Box(materials[nodeJson.solid.materialName], ListToVector(nodeJson.solid.origin)));
+                    solid = (new Box(materials[nodeJson.solid.materialName], ListToVector(nodeJson.solid.origin), nodeJson.solid.size));
                 }
             }
             Node currentNode = new Node(transformationMatrix, new List<Node>(), solid);

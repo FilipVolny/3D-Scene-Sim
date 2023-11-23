@@ -61,13 +61,13 @@ internal class Program
         //demo.Solids.Add(pCeiling);
         //demo.Solids.Add(frontWall);
 
-        tmp.Solids.Add(spherocious);
-        tmp.Solids.Add(spherocious2);
+        //tmp.Solids.Add(spherocious);
+        //tmp.Solids.Add(spherocious2);
         tmp.Solids.Add(babz);
         tmp.LightSources.Add(light);
 
         //testing boxes
-        Box Adam = new Box(blu, new Vector3d(1, -8, 0));
+        Box Adam = new Box(blu, new Vector3d(20, 50, 20), 10);
         tmp.Solids.Add(Adam);
         //demo.LightSources.Add(pointLt);
         //demo.LightSources.Add(light2);
