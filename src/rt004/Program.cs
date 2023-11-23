@@ -25,7 +25,7 @@ internal class Program
     static void Main(string[] args)
     {
         
-        Scene tmp = new Scene(0.2, new Camera((0,0,0), (0,1,0), 0, 2, 2)); //ambientLight, camera(origin, forward, up, width, height)
+        Scene tmp = new Scene(0.2, new Camera((0,-10,0), (0,1,0), 0, 2, 2)); //ambientLight, camera(origin, forward, up, width, height)
 
         Material blu = new Material(new Vector3d(0.3, 0.3, 1), 1, 0, 5, 0, 0); //color, diffusionCoeff, specularCoeff, glossiness 
         Material green = new Material(new Vector3d(0, 1, 0), 0.5, 0.5, 5, 0, 0);
@@ -67,8 +67,8 @@ internal class Program
         tmp.LightSources.Add(light);
 
         //testing boxes
-        
-
+        Box Adam = new Box(blu);
+        tmp.Solids.Add(Adam);
         //demo.LightSources.Add(pointLt);
         //demo.LightSources.Add(light2);
 
@@ -100,7 +100,7 @@ internal class Program
         */
         //testing; delete later, everything else stays the same 
         Scene scene = tmp; //
-        string configFile = "nonHiearchyModel_tmp0";
+        string configFile = "nonHiearchyModel_box0";
         //
 
 
