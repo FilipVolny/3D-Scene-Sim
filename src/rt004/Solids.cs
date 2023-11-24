@@ -158,43 +158,6 @@ namespace rt004
             MinVertex = (new Vector3d(-0.5,-0.5,-0.5)  * Size) + this.Origin; //not sure if this is correct
             MaxVertex = (new Vector3d(0.5, 0.5, 0.5)  * Size ) + this.Origin;
         }
-        /*
-        public Vector3d GetNormal(Vector3d point, bool isInside)
-        {
-            //TODO, not sure if this makes sense , try to figure it out and remake
-            Vector3d normal = new Vector3d(0, 0, 0);
-            //checks which face is the point located at
-            if (MinVertex.X == point.X)
-            {
-                normal.X = -1;
-            }
-            else if (MaxVertex.X == point.X)
-            {
-                normal.X = 1;
-            }
-            else if (MinVertex.Y == point.Y)
-            {
-                normal.Y = -1;
-            }
-            else if (MaxVertex.Y == point.Y)
-            {
-                normal.Y = 1;
-            }
-            else if (MinVertex.Z == point.Z)
-            {
-                normal.Z = -1;
-            }
-            else if (MaxVertex.Z == point.Z)
-            {
-                normal.Z = 1;
-            }
-            if(isInside)
-            {
-                normal = -normal;
-            }
-
-            return -normal.Normalized();
-        }*/
 
         public Vector3d GetNormal(Vector3d point, bool isInside)
         {

@@ -50,12 +50,12 @@ internal class Program
         Sphere spherocious2 = new Sphere(glass, new Vector3d(-20, 50, -5), 15);
         Sphere babz = new Sphere(green, new Vector3d(25, 40, -10), 10);
         
-        SphericalLightSource light = new((-100, -50, 20), (1, 1, 1), 1, 40); //origin, direction, color, intensity, radius
+        SphericalLightSource light = new((-100, -50, 30), (1, 1, 1), 1, 0); //origin, direction, color, intensity, radius
         //PointLightSource pointLt = new((-50, 0, 0), (0.2, 0.2, 0.2), 0.2);
         //DirectionLightSource light2 = new((0, 500, 300), (1, 1, 1), 0.25);
 
         //demo.Solids.Add(pBack);
-        tmp.Solids.Add(pFloor);
+        //tmp.Solids.Add(pFloor);
         //demo.Solids.Add(pRight);
         //demo.Solids.Add(pLeft);
         //demo.Solids.Add(pCeiling);
@@ -63,19 +63,25 @@ internal class Program
 
         //tmp.Solids.Add(spherocious);
         //tmp.Solids.Add(spherocious2);
-        tmp.Solids.Add(babz);
+        //tmp.Solids.Add(babz);
         tmp.LightSources.Add(light);
 
         //testing boxes
-        Box Adam = new Box(blu, new Vector3d(20, 50, 20), 10);
+        Box Adam = new Box(blu, new Vector3d(10, 50, 20), 10);
         tmp.Solids.Add(Adam);
+        Box Steve = new Box(blu, new Vector3d(20, 50, 20), 10);
+        tmp.Solids.Add(Steve);
+        Box Eve = new Box(blu, new Vector3d(20, 50, 20), 10);
+        //tmp.Solids.Add(Eve);
+        Box Sadam = new Box(blu, new Vector3d(0, 50, 10), 10);
+        //tmp.Solids.Add(Sadam);
         //demo.LightSources.Add(pointLt);
         //demo.LightSources.Add(light2);
 
         Material plush = new Material((1, 0.5, 0), 0.9, 0.1, 500, 0, 0);
         Sphere Bleep = new Sphere(plush, new Vector3d(-10, 60, -5), 5);
 
-        tmp.Solids.Add(Bleep);
+        //tmp.Solids.Add(Bleep);
 
         ///////////////////////////////////////////
 
