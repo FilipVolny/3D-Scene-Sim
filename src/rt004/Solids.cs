@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -157,6 +158,7 @@ namespace rt004
             MinVertex = (new Vector3d(-0.5,-0.5,-0.5)  * Size) + this.Origin; //not sure if this is correct
             MaxVertex = (new Vector3d(0.5, 0.5, 0.5)  * Size ) + this.Origin;
         }
+        /*
         public Vector3d GetNormal(Vector3d point, bool isInside)
         {
             //TODO, not sure if this makes sense , try to figure it out and remake
@@ -170,7 +172,7 @@ namespace rt004
             {
                 normal.X = 1;
             }
-            if (MinVertex.Y == point.Y)
+            else if (MinVertex.Y == point.Y)
             {
                 normal.Y = -1;
             }
@@ -178,7 +180,7 @@ namespace rt004
             {
                 normal.Y = 1;
             }
-            if (MinVertex.Z == point.Z)
+            else if (MinVertex.Z == point.Z)
             {
                 normal.Z = -1;
             }
@@ -190,7 +192,27 @@ namespace rt004
             {
                 normal = -normal;
             }
+
             return -normal.Normalized();
+        }*/
+
+        public Vector3d GetNormal(Vector3d point, bool isInside)
+        {
+            Vector3d tmp = point - this.Origin;
+            Vector3d normal = Vector3d.Zero;
+            double maxCoord = Math.Max(Math.Max(Math.Abs(tmp.X), Math.Abs(tmp.Y)), Math.Abs(tmp.Z));
+            if (maxCoord == Math.Abs(tmp.X)) { normal.X = Math.Sign(tmp.X) * -1; }
+            if (maxCoord == Math.Abs(tmp.Y)) { normal.Y = Math.Sign(tmp.Y) * -1; }
+            if (maxCoord == Math.Abs(tmp.Z)) { normal.Z = Math.Sign(tmp.Z) * -1; }
+            if (isInside)
+            {
+                return -normal;
+            }
+            
+            if( normal == Vector3d.Zero) { throw new Exception("Box.GetNormal() want's to return a zero vector, THIS SHOULD NOT HAPPEN"); }
+
+            return normal;
+            
         }
 
         public Vector2d GetUVCoords(Vector3d point, bool isInside)
