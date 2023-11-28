@@ -7,7 +7,7 @@ using System.Text.Json;
 using Util;
 using OpenTK.Mathematics;
 using System.Diagnostics.Tracing;
-
+using rt004.Solids;
 
 namespace rt004
 {
