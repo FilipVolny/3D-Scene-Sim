@@ -205,12 +205,12 @@ namespace rt004
             tmin = Math.Max(tmin, Math.Min(tz1, tz2));
             tmax = Math.Min(tmax, Math.Max(tz1, tz2));
 
-            if (tmin > tmax)
+            if (tmin > tmax || tmax < 0)
             {
                 return null;
             }
 
-            if( tmin < 0)
+            if (tmin < 0)
             {
                 return tmax;
             }
