@@ -8,6 +8,7 @@ using Util;
 using OpenTK.Mathematics;
 using System.Diagnostics.Tracing;
 using rt004.Solids;
+using rt004.Textures;
 
 namespace rt004
 {

@@ -1,117 +1,7 @@
 ﻿using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace rt004
+namespace rt004.Textures
 {
-    public interface IMaterial
-    {
-        public Vector3d Colour(Vector2d uv);
-        public Vector3d Color { get; }
-        public double DiffusionCoefficient { get; }
-        public double SpecularCoefficient { get; }
-        public double Glossiness { get; }
-        public double Transparency { get; }
-        public double RefractiveIndex { get; }
-    }
-
-    public class Material : IMaterial
-    {
-        public Vector3d Color { get; }
-        public Vector3d Colour(Vector2d uv)
-        {
-            return Color;
-        }
-        public double DiffusionCoefficient { get; }
-        public double SpecularCoefficient { get; }
-        public double Glossiness { get; }
-        public double Transparency { get; }
-        public double RefractiveIndex { get; }
-        public Material(Vector3d color, double diffuseCoeficient, double specularCoeficient,
-            double glossiness, double transparency, double refractiveIndex)
-        {
-            Color = color;
-            DiffusionCoefficient = diffuseCoeficient;
-            SpecularCoefficient = specularCoeficient;
-            Glossiness = glossiness;
-            Transparency = transparency;
-            RefractiveIndex = refractiveIndex;
-        }
-    }
-    public class Texture : IMaterial
-    {
-        public Vector3d Color { get; }
-        public Vector3d Colour(Vector2d uv)
-        {
-            return Color;
-        }
-
-        public double DiffusionCoefficient { get; }
-        public double SpecularCoefficient { get; }
-        public double Glossiness { get; }
-        public double Transparency { get; }
-        public double RefractiveIndex { get; }
-
-        public Texture(Vector3d color, double diffuseCoeficient, double specularCoeficient, double glossiness, double transparency, double refractiveIndex)
-        {
-            Color = color;
-            DiffusionCoefficient = diffuseCoeficient;
-            SpecularCoefficient = specularCoeficient;
-            Glossiness = glossiness;
-            Transparency = transparency;
-            RefractiveIndex = refractiveIndex;
-        }
-    }
-    
-    public class Checkers : IMaterial
-    {
-        public int modulo = 2; // must be an even number
-
-
-        public Vector3d Color { get; }
-        public Vector3d Colour(Vector2d uv)
-        {
-            double halfPoint = modulo / 2;
-
-            double u = uv.X;
-            if( u < 0 ) { u = -u + halfPoint; } // used to center the checker texture properly at u=0 or v=0 
-            u %= modulo;                        
-
-            double v = uv.Y;
-            if( v < 0 ) {  v = -v + halfPoint; } // used to center the checker texture properly at u=0 or v=0 
-            v %= modulo;
-
-            if ((u <= halfPoint && v >= halfPoint) || (u >= halfPoint && v <= halfPoint))
-            {
-                return new(1, 1, 1);
-            }
-            return new(0, 0, 0);
-            
-
-        }
-
-        public double DiffusionCoefficient { get; }
-        public double SpecularCoefficient { get; }
-        public double Glossiness { get; }
-        public double Transparency { get; }
-        public double RefractiveIndex { get; }
-        public Checkers(Vector3d color, double diffuseCoeficient, double specularCoeficient, double glossiness, double transparency, double refractiveIndex)
-        {
-            Color = color;
-            DiffusionCoefficient = diffuseCoeficient;
-            SpecularCoefficient = specularCoeficient;
-            Glossiness = glossiness;
-            Transparency = transparency;
-            RefractiveIndex = refractiveIndex;
-        }
-    }
-    
     public class PerlinNoise : IMaterial
     {
         public Vector3d Color { get; }
@@ -124,9 +14,9 @@ namespace rt004
 
             for (int i = 0; i < 10; i++)
             {
-                perlinNoise += Math.Abs(Noise2D(uv.X * Math.Pow(coef, (i + 1)) , uv.Y * Math.Pow(coef, (i + 1)))) / Math.Pow(coef, (i + 1));
+                perlinNoise += Math.Abs(Noise2D(uv.X * Math.Pow(coef, i + 1), uv.Y * Math.Pow(coef, i + 1))) / Math.Pow(coef, i + 1);
             }
-            
+
 
             Vector3d color = new Vector3d(perlinNoise, perlinNoise, perlinNoise);
 
@@ -208,11 +98,11 @@ namespace rt004
             int X = (int)Math.Floor(x) & 255;
             int Y = (int)Math.Floor(y) & 255;
 
-            double xf = x-Math.Floor(x);
-            double yf = y-Math.Floor(y);
+            double xf = x - Math.Floor(x);
+            double yf = y - Math.Floor(y);
 
             Vector2d topRight = new Vector2d(xf - 1, yf - 1);
-            Vector2d topLeft = new Vector2d(xf, yf  - 1);
+            Vector2d topLeft = new Vector2d(xf, yf - 1);
             Vector2d bottomRight = new Vector2d(xf - 1, yf);
             Vector2d bottomLeft = new Vector2d(xf, yf);
 
@@ -235,4 +125,5 @@ namespace rt004
             );
         }
     }
+
 }
