@@ -4,7 +4,7 @@ namespace rt004.Textures
 {
     public class Checkers : IMaterial
     {
-        public int modulo = 2; // must be an even number
+        public double modulo; // must be an even number
 
 
         public Vector3d Color { get; }
@@ -22,9 +22,9 @@ namespace rt004.Textures
 
             if (u <= halfPoint && v >= halfPoint || u >= halfPoint && v <= halfPoint)
             {
-                return new(1, 1, 1);
+                return new(1, 1, 1); //could possibly return any colour
             }
-            return new(0, 0, 0);
+            return new(0, 0, 0); //could possibly return any colour
 
 
         }
@@ -34,7 +34,7 @@ namespace rt004.Textures
         public double Glossiness { get; }
         public double Transparency { get; }
         public double RefractiveIndex { get; }
-        public Checkers(Vector3d color, double diffuseCoeficient, double specularCoeficient, double glossiness, double transparency, double refractiveIndex)
+        public Checkers(Vector3d color, double diffuseCoeficient, double specularCoeficient, double glossiness, double transparency, double refractiveIndex, double size)
         {
             Color = color;
             DiffusionCoefficient = diffuseCoeficient;
@@ -42,6 +42,7 @@ namespace rt004.Textures
             Glossiness = glossiness;
             Transparency = transparency;
             RefractiveIndex = refractiveIndex;
+            modulo = size * 2; //modulo must even
         }
     }
 
