@@ -1,12 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using rt004.Solids;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Schema;
+
 //todo line 43,39, its written there what needs to be done
 namespace rt004
 {
@@ -115,10 +109,7 @@ namespace rt004
 
                             (ISolid?, double?) intersection = Phong.ThrowRay(ray, scene.Solids);
 
-                            if (intersection.Item1 != null && intersection.Item2 != null)
-                            {
-                                color += Phong.Shade(scene, ray, 0, MaxRayTracingDepth) ;
-                            }
+                            color += Phong.Shade(scene, ray, 0, MaxRayTracingDepth) ;
                         }
                         pixels[x, y] = color / sampleSize;
                     }
@@ -162,13 +153,6 @@ namespace rt004
                             Ray ray = _getRayFromCameraAntiAliasing(pixelWidth, pixelHeight, xPart, yPart);
 
                             color += Phong.ShadeHierarchy(scene, ray, 0, sampleSize, MaxRayTracingDepth);
-
-                            // this was here before, doesnt make sense? should just delete probs
-                            //(ISolid?, double?, Matrix3d) intersection = Phong.ThrowRay(ray, scene.Root);
-                            //if (intersection.Item1 != null && intersection.Item2 != null)
-                            //{
-                            //    color += Phong.ShadeHierarchy(scene, ray, 0, MaxRayTracingDepth);
-                            //}
                         }
                         pixels[x, y] = color / sampleSize;
                     }
