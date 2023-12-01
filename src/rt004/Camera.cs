@@ -126,7 +126,12 @@ namespace rt004
             });
             return pixels;
         }
-        /*
+
+
+        /////////////////////
+        /////////////////////
+
+        //a version of ParallelRayCast that uses hiearchical order of solids
         public Vector3d[,] ParallelRayCastHierarchy(Scene scene, int sampleSize, int pixelWidth, int pixelHeight) //Yes Anti-aliasing
         {
             int numberOfAvailableProcessors = Environment.ProcessorCount - 1;
@@ -170,7 +175,7 @@ namespace rt004
                 }
             });
             return pixels;
-        }*/
+        }
         /* redundant
         public Vector3d[,] RayCast(Scene scene, int pixelWidth, int pixelHeight)
         {

@@ -32,7 +32,7 @@ namespace rt004
         }
         
         //TODO throw ray does not work yet --4.11.23 I dont remember why this is here? Great.
-        /*
+        //version that uses hiearchy
         public static (ISolid?, double?, Matrix4d) ThrowRay(Ray ray, Node root)
         {
             (ISolid?, double?, Matrix4d) result = new(null, null, Matrix4d.Identity);
@@ -76,7 +76,7 @@ namespace rt004
             }
             return result;
         }
-        */
+        
         /*
         public static (ISolid?, double?) ThrowRay(Ray ray, Node node)
         {
@@ -282,7 +282,7 @@ namespace rt004
             return color;
         }
         
-        /*
+        
         /// <summary>
         /// Checks if there is a solid blocking a r ILighSource
         /// </summary>
@@ -349,17 +349,17 @@ namespace rt004
                 //specular component
                 double dotReflection = Vector3d.Dot((2 * normal * Vector3d.Dot(normal, directionToLight) - directionToLight).Normalized(), ray.Direction);
                 Vector3d Es = lightSource.Intensity * lightSource.Color * intersectedSolid.Material.SpecularCoefficient * Math.Pow((dotReflection > 0 ? dotReflection : 0), intersectedSolid.Material.Glossiness);
-                //
-                //for (int i = 0; i < shadowRayNum; i++)
-                //{
-                //    if (!ShadowHierarchy(intersectionPoint, lightSource, scene.Root))
-                //    {
-                //        success++;
-                //    }
-                //}
-                //Ea += (Ed + Es) * success / shadowRayNum;
-                //               //shadows are off
-                Ea += (Ed + Es); //delete this later, when you want to uncomment shadows
+                
+                for (int i = 0; i < shadowRayNum; i++)
+                {
+                    if (!ShadowHierarchy(intersectionPoint, lightSource, scene.Root))
+                    {
+                        success++;
+                    }
+                }
+                Ea += (Ed + Es) * success / shadowRayNum;
+                               //shadows are off
+                //Ea += (Ed + Es); //delete this later, when you want to uncomment shadows
             }
             return Ea;
         }
@@ -443,6 +443,6 @@ namespace rt004
             
             return color;
             
-        }*/
+        }
     }
 }
