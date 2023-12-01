@@ -34,7 +34,7 @@ namespace rt004
 
         }
         
-        //Hiearchical model
+        //Hiearchical model (used for parsing, that's why the constructor has all the params, idk, maybe?)
         public Scene(double ambientCoefficient, Camera camera, Dictionary<string, IMaterial> materials, Node root, List<ILightSource> lightSources)
         {
             AmbientCoefficient = ambientCoefficient;
