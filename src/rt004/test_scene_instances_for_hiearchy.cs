@@ -57,7 +57,7 @@ namespace rt004
         }
         private void _singleNonHierarchyTest(Scene scene, string name)
         {
-
+            Console.WriteLine("Testing " + name);
             FloatImage fi = new FloatImage(1200, 1200, 3); //todo: should parametrize into its own function
             int px = 1;         //modifies pixel size 
             int sampleSize = 1; //sample per pixel
@@ -87,7 +87,7 @@ namespace rt004
         }
         private void _singleHierarchyTest(Scene scene, string name)
         {
-
+            Console.WriteLine("Testing " + name);
             FloatImage fi = new FloatImage(1200, 1200, 3); //todo: should parametrize into its own function
             int px = 1;         //modifies pixel size 
             int sampleSize = 1; //sample per pixel
