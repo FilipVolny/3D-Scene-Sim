@@ -27,7 +27,7 @@ internal class Program
     static void Main(string[] args)
     {
         
-        Scene tmp = new Scene(0.2, new Camera((0,-10,0), (0,1,0), 0, 2, 2)); //ambientLight, camera(origin, forward, up, width, height)
+        Scene tmp = new Scene(0.2, new Camera((0,-10,-20), (0,1,0), 0, 2, 2)); //ambientLight, camera(origin, forward, up, width, height)
 
         Material blu = new Material(new Vector3d(0.3, 0.3, 1), 1, 0, 5, 0, 0); //color, diffusionCoeff, specularCoeff, glossiness 
         Material green = new Material(new Vector3d(0, 1, 0), 0.5, 0.5, 5, 0, 0);
@@ -42,12 +42,12 @@ internal class Program
 
 
         //testing checkers
-        Checkers check = new(new(1,0,0), 1, 0, 5, 0, 0);
+        Checkers check = new(new(1,0,0), 1, 0, 5, 0, 0, 3);
         //
 
 
         Plane pBack = new Plane(matPlane, (0, 100, 0), new Vector3d(0, 1, 0).Normalized()); //material, origin, normalVector
-        Plane pFloor = new Plane(blu, (0, 40, -25), new Vector3d(0, 0, -1).Normalized());
+        Plane pFloor = new Plane(check, (0, 40, -25), new Vector3d(0, 0, -1).Normalized());
         Plane pRight = new Plane(blu, (200, 0, 0), new Vector3d(1, 0, 0).Normalized());
         Plane pLeft = new Plane(matPlane, (-200, 0, 0), new Vector3d(-1, 0, 0).Normalized());
         Plane pCeiling = new Plane(matPlane, (0, 0, 500), new Vector3d(0, 0, 1).Normalized());
@@ -77,7 +77,7 @@ internal class Program
         //testing boxes
         Material boxGlass = new(new Vector3d(0, 0, 0), 1, 0, 5, 1, 10);
 
-        Box Adam = new Box(check, new Vector3d(10, 50, -20), 10);
+        Box Adam = new Box(blu, new Vector3d(10, 50, -20), 10);
         tmp.Solids.Add(Adam);
         Box Steve = new Box(blu, new Vector3d(20, 50, 20), 10);
         //tmp.Solids.Add(Steve);
@@ -122,7 +122,7 @@ internal class Program
 
         FloatImage fi = new FloatImage(1200, 1200, 3);
         int px = 1;
-        int sampleSize = 1; //sample per pixel
+        int sampleSize = 10; //sample per pixel
         Vector3d[,] grid = scene.Camera.ParallelRayCast(scene, sampleSize, fi.Width / px, fi.Height / px);
 
         for (int y = 0; y < fi.Height; y++)
