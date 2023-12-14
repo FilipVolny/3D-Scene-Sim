@@ -14,12 +14,12 @@ namespace rt004
             foreach (ISolid solid in solids)
             {
                 double? tmp = solid.Intersection(ray);
-                if (tmp != null && t == null && tmp > 0.6)
+                if (tmp != null && t == null && tmp > 0.06)
                 {
                     t = tmp;
                     result = solid;
                 }
-                else if (tmp != null && t != null && tmp > 0.6)
+                else if (tmp != null && t != null && tmp > 0.06)
                 {
                     if (tmp < t)
                     {
@@ -59,13 +59,13 @@ namespace rt004
                 tmp = node.Solid.Intersection(transformedRay);
             }
 
-            if (tmp != null && result.Item2 == null && tmp > 0.6)
+            if (tmp != null && result.Item2 == null && tmp > 0.06)
             {
                 result.Item2 = tmp;
                 result.Item1 = node.Solid;
                 result.Item3 = currentTransformation;
             }
-            else if (tmp != null && result.Item2 != null && tmp > 0.6)
+            else if (tmp != null && result.Item2 != null && tmp > 0.06)
             {
                 if (tmp < result.Item2)
                 {
@@ -282,7 +282,6 @@ namespace rt004
             return color;
         }
         
-        
         /// <summary>
         /// Checks if there is a solid blocking a r ILighSource
         /// </summary>
@@ -357,9 +356,9 @@ namespace rt004
                         success++;
                     }
                 }
-                Ea += (Ed + Es) * success / shadowRayNum;
+                //Ea += (Ed + Es) * success / shadowRayNum;
                                //shadows are off
-                //Ea += (Ed + Es); //delete this later, when you want to uncomment shadows
+                Ea += (Ed + Es); //delete this later, when you want to uncomment shadows
             }
             return Ea;
         }
@@ -368,12 +367,11 @@ namespace rt004
         {
 
             (ISolid? solid, double? rayLenght, Matrix4d invertedTransformationMatrix) intersection = Phong.ThrowRay(ray, scene.Root);
-            if (intersection.solid == null || intersection.rayLenght == null)
+            if (intersection.solid is null || intersection.rayLenght is null)
             {
-                return new Vector3d(0, 0, 0); //return scene background // no interscections
+                return new Vector3d(1, 0, 0); //return scene background // no interscections //the red is there for seeing if it works
             }
 
-            //Console.WriteLine(intersection.invertedTransformationMatrix); debug, delete l8r
             Matrix4d invTrans = intersection.invertedTransformationMatrix; //inverted transformation matrix
 
             //try transforming the ray itself here, ThrowRay doesnt transform the ray, it only returns the transformation matrix
@@ -385,7 +383,7 @@ namespace rt004
             if (intersectedSolid == ray.OriginSolid) { isInsideSolid = true; }
 
             Vector3d intersectedPoint = (Vector3d)(ray.Origin + (intersection.rayLenght * ray.Direction));
-            Vector3d color = default; //result color
+            Vector3d color = new(0,0,0); //result color
             
             //transform normal
             Vector4d tmpNormal = (Matrix4d.Transpose(invTrans) * new Vector4d (intersectedSolid.GetNormal(intersectedPoint, isInsideSolid),1)).Normalized();
@@ -402,6 +400,7 @@ namespace rt004
                 return color;
             }
             //this till the return color probably doesnt work? idk was commented
+            /*
             //reflection
             Vector3d reflectionColor = default;
             if (intersectedSolid.Material.SpecularCoefficient > 0)
@@ -409,7 +408,7 @@ namespace rt004
                 Vector3d reflectionVector = 2 * Vector3d.Dot(normal, -(ray.Direction)) * normal + ray.Direction;
                 reflectionColor += intersectedSolid.Material.SpecularCoefficient * ShadeHierarchy(scene, new Ray(intersectedPoint, reflectionVector, ray.OriginSolid), depth + 1, sampleSize, maxdepth);
             }
-
+            
             //refraction
             Vector3d refractionColor = default;
             double originRefractiveIndex;
@@ -440,7 +439,7 @@ namespace rt004
             }
 
             color += (reflectionColor * (1 - intersectedSolid.Material.Transparency)) + (refractionColor * intersectedSolid.Material.Transparency);
-            
+            */
             return color;
             
         }
