@@ -51,7 +51,7 @@ namespace rt004
 
         public Ray TransformDirection(Matrix4d TransformationMatrix)
         {
-            Vector4d tmpDirection = new Vector4d(Direction, 1);
+            Vector4d tmpDirection = new Vector4d(Direction, 0);
             tmpDirection = TransformationMatrix * tmpDirection;
 
             Vector3d transformedDirection = tmpDirection.Xyz;
@@ -60,7 +60,7 @@ namespace rt004
         }
         public void TransformedDirection(Matrix4d TransformationMatrix)
         {
-            Vector4d tmpDirection = new Vector4d(Direction, 1);
+            Vector4d tmpDirection = new Vector4d(Direction, 0);
             tmpDirection = TransformationMatrix * tmpDirection;
 
             Vector3d transformedDirection = tmpDirection.Xyz;
