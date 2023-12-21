@@ -8,6 +8,8 @@ namespace rt004
 
     public class TestScenes
     {
+        //this should've been in .gitIgnore
+
         public int nhThrowRaySucces;
         public int hThrowRaySucces;
         public Scene nhs1;
