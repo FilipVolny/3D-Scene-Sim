@@ -6,7 +6,7 @@ namespace rt004
 
     public static class Phong
     {
-        
+        //TODO Refactor to camera/different class later
         public static (ISolid?, double?) ThrowRay(Ray ray, List<ISolid> solids)
         {
             ISolid? result = null;
@@ -30,8 +30,9 @@ namespace rt004
             }
             return (result, t);
         }
-        
-        //TODO throw ray does not work yet --4.11.23 I dont remember why this is here? Great.
+
+        //TODO Could remake to, so the transformations happen based around an explicit point in space
+        // Refactor to camera/different class later
         //version that uses hiearchy
         public static (ISolid?, double?, Matrix4d) ThrowRayHierarchy(Ray ray, Node root)
         {
@@ -47,9 +48,7 @@ namespace rt004
             //and then is multiplied by inverted matrices, therefore, it doesnt need to be inverted again.
             currentTransformation = currentTransformation * node.TransformationMatrixInverse; //TODO:order of transformation matters, figure out which one is correct
 
-            //transform translation
-            Matrix4d translation = currentTransformation.ExtractTranslationMatrix();
-            Ray transformedRay = ray.TransformOrigin(translation);
+
             /*
             //transform scale
             Vector3d scale = currentTransformation.ExtractScale();
@@ -59,6 +58,9 @@ namespace rt004
             Quaterniond rotation = currentTransformation.ExtractRotation(); //TODO might cause some light jankinness later
             transformedRay.Direction = rotation * ray.Direction;
             */
+            //transform translation
+            Matrix4d translation = currentTransformation.ExtractTranslationMatrix();
+            Ray transformedRay = ray.TransformOrigin(translation);
             //transform rotation and scale
             Matrix4d rotationAndScale = currentTransformation.Transposed().ClearTranslation().Transposed();
             transformedRay.TransformedDirection(rotationAndScale);
@@ -387,10 +389,15 @@ namespace rt004
             }
 
             Matrix4d invTrans = intersection.invertedTransformationMatrix; //inverted transformation matrix
-
-            //try transforming the ray itself here, ThrowRay doesnt transform the ray, it only returns the transformation matrix
-            ray = ray.TransformRay(invTrans);
-
+            
+            //does the ray need to be transformed?
+            //transform translation
+            Matrix4d translation = invTrans.ExtractTranslationMatrix();
+            Ray transformedRay = ray.TransformOrigin(translation);
+            //transform rotation and scale
+            Matrix4d rotationAndScale = invTrans.Transposed().ClearTranslation().Transposed();
+            transformedRay.TransformedDirection(rotationAndScale);
+            
             ISolid intersectedSolid = intersection.solid;
 
             bool isInsideSolid = false;
@@ -400,9 +407,8 @@ namespace rt004
             Vector3d color = new(0,0,0); //result color
             
             //transform normal
-            Vector4d tmpNormal = (Matrix4d.Transpose(invTrans) * new Vector4d (intersectedSolid.GetNormal(intersectedPoint, isInsideSolid),1)).Normalized();
-            Vector3d normal = new Vector3d(tmpNormal.X, tmpNormal.Y, tmpNormal.Z);
-            //Vector3d normal = (Matrix3d.Transpose(invTrans) * intersectedSolid.GetNormal(intersectedPoint, isInsideSolid)).Normalized();
+            Vector4d tmpNormal = (Matrix4d.Transpose(invTrans) * new Vector4d(intersectedSolid.GetNormal(intersectedPoint, isInsideSolid),1)).Normalized();
+            Vector3d normal = tmpNormal.Xyz;
 
             foreach (ILightSource light in scene.LightSources)
             {
