@@ -33,25 +33,27 @@ namespace rt004
         
         //TODO throw ray does not work yet --4.11.23 I dont remember why this is here? Great.
         //version that uses hiearchy
-        public static (ISolid?, double?, Matrix4d) ThrowRay(Ray ray, Node root)
+        public static (ISolid?, double?, Matrix4d) ThrowRayHierarchy(Ray ray, Node root)
         {
             (ISolid?, double?, Matrix4d) result = new(null, null, Matrix4d.Identity);
-
-            result = _throwRayRecursive(ray, root, Matrix4d.Identity, result);
-
+            result = _throwRayRecursiveHierarchy(ray, root, Matrix4d.Identity, result, 0);
             return result;
         }
 
-        private static (ISolid?, double?, Matrix4d) _throwRayRecursive(Ray ray, Node node, Matrix4d currentTransformation,
-            (ISolid?, double?, Matrix4d) result)
+        private static (ISolid?, double?, Matrix4d) _throwRayRecursiveHierarchy(Ray ray, Node node, Matrix4d currentTransformation,
+            (ISolid?, double?, Matrix4d) result, int dbgLayer)
         {
+            //CurrentTransformation starts as an identity matrix,
+            //and then is multiplied by inverted matrices, therefore, it doesnt need to be inverted again.
+            currentTransformation = currentTransformation * node.TransformationMatrixInverse; //TODO:order of transformation matters, figure out which one is correct
+            //Ray transformedRay = ray.TransformRay(currentTransformation);
+            //testing translation
+            Ray transformedRay = ray.TransformOrigin(currentTransformation);
 
-            currentTransformation = node.TransformationMatrixInverse * currentTransformation;
-            Ray transformedRay = ray.TransformRay(currentTransformation);
-
+            currentTransformation.ExtractScale();
             foreach (Node child in node.Nodes)
             {
-                result = _throwRayRecursive(transformedRay, child, currentTransformation, result);
+                result = _throwRayRecursiveHierarchy(ray, child, currentTransformation, result, ++dbgLayer);
             }
             double? tmp = null;
             if (node.Solid is not null)
@@ -59,13 +61,13 @@ namespace rt004
                 tmp = node.Solid.Intersection(transformedRay);
             }
 
-            if (tmp != null && result.Item2 == null && tmp > 0.06)
+            if (tmp is not null && result.Item2 is null && tmp > 0.06)
             {
                 result.Item2 = tmp;
                 result.Item1 = node.Solid;
                 result.Item3 = currentTransformation;
             }
-            else if (tmp != null && result.Item2 != null && tmp > 0.06)
+            else if (tmp is not null && result.Item2 is not null && tmp > 0.06)
             {
                 if (tmp < result.Item2)
                 {
@@ -366,7 +368,7 @@ namespace rt004
         public static Vector3d ShadeHierarchy(Scene scene, Ray ray, int depth, int sampleSize, int maxdepth) 
         {
 
-            (ISolid? solid, double? rayLenght, Matrix4d invertedTransformationMatrix) intersection = Phong.ThrowRay(ray, scene.Root);
+            (ISolid? solid, double? rayLenght, Matrix4d invertedTransformationMatrix) intersection = Phong.ThrowRayHierarchy(ray, scene.Root);
             if (intersection.solid is null || intersection.rayLenght is null)
             {
                 return new Vector3d(1, 0, 0); //return scene background // no interscections //the red is there for seeing if it works
