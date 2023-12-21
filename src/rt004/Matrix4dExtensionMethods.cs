@@ -16,6 +16,10 @@ namespace rt004
             result.Column3 = matrix.Column3;
             return result;
         }
-
+        public static Matrix4d Transposed(this Matrix4d matrix)
+        {
+            matrix.Transpose();
+            return matrix;
+        }
     }
 }
