@@ -65,7 +65,7 @@ namespace rt004
 
             Vector3d transformedDirection = tmpDirection.Xyz;
 
-            Direction = transformedDirection;
+            Direction = transformedDirection.Normalized();
         }
 
         public Ray TransformRay(Matrix4d TransformationMatrix)
@@ -73,7 +73,6 @@ namespace rt004
             Ray transformedRay = new(Origin, Direction, OriginSolid);
             transformedRay.TransformedOrigin(TransformationMatrix);
             transformedRay.TransformedDirection(TransformationMatrix);
-
             return transformedRay;
         }
     }
