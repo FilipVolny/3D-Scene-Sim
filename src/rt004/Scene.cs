@@ -1,6 +1,12 @@
 ﻿using OpenTK.Mathematics;
 using rt004.Solids;
 using rt004.Textures;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace rt004
 {
@@ -11,7 +17,7 @@ namespace rt004
         public Dictionary<string, IMaterial> Materials { get; }
         public List<ISolid> Solids { get; }
         public List<ILightSource> LightSources { get; }
-        public Node Root { get; set; } //should be readonly set; only for tests
+        public Node Root { get; }
         
 
         //Non hiearchical model

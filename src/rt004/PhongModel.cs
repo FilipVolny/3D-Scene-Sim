@@ -46,23 +46,11 @@ namespace rt004
             //CurrentTransformation starts as an identity matrix,
             //and then is multiplied by inverted matrices, therefore, it doesnt need to be inverted again.
             currentTransformation = currentTransformation * node.TransformationMatrixInverse; //TODO:order of transformation matters, figure out which one is correct
+            //Ray transformedRay = ray.TransformRay(currentTransformation);
+            //testing translation
+            Ray transformedRay = ray.TransformOrigin(currentTransformation);
 
-            //transform translation
-            Matrix4d translation = currentTransformation.ExtractTranslationMatrix();
-            Ray transformedRay = ray.TransformOrigin(translation);
-            /*
-            //transform scale
-            Vector3d scale = currentTransformation.ExtractScale();
-            transformedRay.Direction = scale * ray.Direction;
-            
-            //transform rotation
-            Quaterniond rotation = currentTransformation.ExtractRotation(); //TODO might cause some light jankinness later
-            transformedRay.Direction = rotation * ray.Direction;
-            */
-            //transform rotation and scale
-            Matrix4d rotationAndScale = currentTransformation.Transposed().ClearTranslation().Transposed();
-            transformedRay.TransformedDirection(rotationAndScale);
-
+            currentTransformation.ExtractScale();
             foreach (Node child in node.Nodes)
             {
                 result = _throwRayRecursiveHierarchy(ray, child, currentTransformation, result, ++dbgLayer);
