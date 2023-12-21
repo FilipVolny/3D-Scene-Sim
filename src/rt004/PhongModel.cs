@@ -392,15 +392,11 @@ namespace rt004
             }
 
             Matrix4d invTrans = intersection.invertedTransformationMatrix; //inverted transformation matrix
-            
+
             //does the ray need to be transformed?
-            //transform translation
-            Matrix4d translation = invTrans.ExtractTranslationMatrix();
-            Ray transformedRay = ray.TransformOrigin(translation);
-            //transform rotation and scale
-            Matrix4d rotationAndScale = invTrans.Transposed().ClearTranslation().Transposed();
-            transformedRay.TransformedDirection(rotationAndScale);
-            
+            Ray transformedRay = ray.TransformRay(intersection.invertedTransformationMatrix);
+            ray = transformedRay;
+
             ISolid intersectedSolid = intersection.solid;
 
             bool isInsideSolid = false;
