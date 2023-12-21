@@ -3,6 +3,7 @@ using rt004.Solids;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,26 +22,59 @@ namespace rt004
             OriginSolid = originSolid;
             //InverseTransformationMatrix = Matrix4d.Identity;
         }
+        /*
         public Ray(Vector3d origin, Vector3d direction, ISolid? originSolid, Matrix4d inverseTransformationMatrix)
         {
             Origin = origin;
             Direction = direction.Normalized();
             OriginSolid = originSolid;
             //InverseTransformationMatrix = inverseTransformationMatrix;
+        }*/
+        public Ray TransformOrigin(Matrix4d TransformationMatrix)
+        {
+            Vector4d tmpOrigin = new Vector4d(Origin, 1);
+            tmpOrigin = TransformationMatrix * tmpOrigin;
+
+            Vector3d transformedOrigin = tmpOrigin.Xyz;
+
+            return new Ray(transformedOrigin, Direction, OriginSolid);
+        }
+        public void TransformedOrigin(Matrix4d TransformationMatrix)
+        {
+            Vector4d tmpOrigin = new Vector4d(Origin, 1);
+            tmpOrigin = TransformationMatrix * tmpOrigin;
+
+            Vector3d transformedOrigin = tmpOrigin.Xyz;
+
+            Origin = transformedOrigin;
+        }
+
+        public Ray TransformDirection(Matrix4d TransformationMatrix)
+        {
+            Vector4d tmpDirection = new Vector4d(Direction, 1);
+            tmpDirection = TransformationMatrix * tmpDirection;
+
+            Vector3d transformedDirection = tmpDirection.Xyz;
+
+            return new(Origin, transformedDirection, OriginSolid);
+        }
+        public void TransformedDirection(Matrix4d TransformationMatrix)
+        {
+            Vector4d tmpDirection = new Vector4d(Direction, 1);
+            tmpDirection = TransformationMatrix * tmpDirection;
+
+            Vector3d transformedDirection = tmpDirection.Xyz;
+
+            Direction = transformedDirection;
         }
 
         public Ray TransformRay(Matrix4d TransformationMatrix)
         {
-            Vector4d tmpOrigin = new Vector4d(Origin, 1);
-            tmpOrigin = TransformationMatrix * tmpOrigin;
-            Vector3d transformedOrigin = new Vector3d(tmpOrigin.X, tmpOrigin.Y, tmpOrigin.Z);
+            Ray transformedRay = new(Origin, Direction, OriginSolid);
+            transformedRay.TransformedOrigin(TransformationMatrix);
+            transformedRay.TransformedDirection(TransformationMatrix);
 
-            Vector4d tmpDirection = new Vector4d(Direction, 1);
-            tmpDirection = TransformationMatrix * tmpDirection;
-            Vector3d transformedDirection = new Vector3d(tmpDirection.X, tmpDirection.Y, tmpDirection.Z);
-
-            return new Ray(transformedOrigin, transformedDirection, this.OriginSolid);
-
+            return transformedRay;
         }
     }
 }
