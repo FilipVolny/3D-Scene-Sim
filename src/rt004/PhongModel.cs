@@ -59,11 +59,14 @@ namespace rt004
             transformedRay.Direction = rotation * ray.Direction;
             */
             //transform translation
+            /*
             Matrix4d translation = currentTransformation.ExtractTranslationMatrix();
             Ray transformedRay = ray.TransformOrigin(translation);
             //transform rotation and scale
             Matrix4d rotationAndScale = currentTransformation.Transposed().ClearTranslation().Transposed();
             transformedRay.TransformedDirection(rotationAndScale);
+            */
+            Ray transformedRay = ray.TransformRay(currentTransformation);
 
             foreach (Node child in node.Nodes)
             {
