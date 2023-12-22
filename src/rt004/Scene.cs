@@ -17,7 +17,7 @@ namespace rt004
         public Dictionary<string, IMaterial> Materials { get; }
         public List<ISolid> Solids { get; }
         public List<ILightSource> LightSources { get; }
-        public Node Root { get; }
+        public Node Root { get; set; } //for testing
         
 
         //Non hiearchical model
