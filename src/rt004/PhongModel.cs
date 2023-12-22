@@ -388,7 +388,7 @@ namespace rt004
             (ISolid? solid, double? rayLenght, Matrix4d invertedTransformationMatrix) intersection = Phong.ThrowRayHierarchy(ray, scene.Root);
             if (intersection.solid is null || intersection.rayLenght is null)
             {
-                return new Vector3d(1, 0, 0); //return scene background // no interscections //the red is there for seeing if it works
+                return new Vector3d(0, 0, 0); //return scene background // no interscections //dbg = (1,0,0)
             }
 
             Matrix4d invTrans = intersection.invertedTransformationMatrix; //inverted transformation matrix
