@@ -362,3 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /src/rt004/test_scene_instances_for_hiearchy.cs
+/src/rt004/Output
