@@ -413,8 +413,17 @@ namespace rt004
             Vector3d color = default; //result color
             
             //transform normal
-            Vector4d tmpNormal = (Matrix4d.Transpose(invTrans) * new Vector4d(intersectedSolid.GetNormal(intersectedPoint, isInsideSolid),1)).Normalized();
-            Vector3d normal = tmpNormal.Xyz;
+            Matrix4d transposedInvTrans = Matrix4d.Transpose(invTrans);
+
+            Vector4d tmpTransformedIntersectedPoint = new Vector4d(intersectedPoint, 1);
+            tmpTransformedIntersectedPoint = invTrans * tmpTransformedIntersectedPoint;
+
+            Vector3d transformedIntersectedPoint = tmpTransformedIntersectedPoint.Xyz;
+
+            Vector4d tmpNormal = new Vector4d(intersectedSolid.GetNormal(transformedIntersectedPoint, isInsideSolid), 0);
+            tmpNormal = (tmpNormal * transposedInvTrans);
+
+            Vector3d normal = tmpNormal.Xyz.Normalized();
 
             foreach (ILightSource light in scene.LightSources)
             {
