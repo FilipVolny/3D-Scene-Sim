@@ -410,7 +410,7 @@ namespace rt004
              */
 
             Vector3d intersectedPoint = (Vector3d)(ray.Origin + (intersection.rayLenght * ray.Direction));
-            Vector3d color = new(0,0,0); //result color
+            Vector3d color = default; //result color
             
             //transform normal
             Vector4d tmpNormal = (Matrix4d.Transpose(invTrans) * new Vector4d(intersectedSolid.GetNormal(intersectedPoint, isInsideSolid),1)).Normalized();
