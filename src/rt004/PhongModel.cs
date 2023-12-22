@@ -411,7 +411,7 @@ namespace rt004
 
             Vector3d intersectedPoint = (Vector3d)(ray.Origin + (intersection.rayLenght * ray.Direction));
             Vector3d color = default; //result color
-            
+
             //transform normal
             Matrix4d transposedInvTrans = Matrix4d.Transpose(invTrans);
 
