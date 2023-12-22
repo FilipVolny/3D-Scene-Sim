@@ -394,9 +394,8 @@ namespace rt004
             Matrix4d invTrans = intersection.invertedTransformationMatrix; //inverted transformation matrix
 
             //does the ray need to be transformed?
-            Ray transformedRay = ray.TransformRay(intersection.invertedTransformationMatrix);
-            ray = transformedRay;
-
+            //Ray transformedRay = ray.TransformRay(intersection.invertedTransformationMatrix);
+            //ray = transformedRay;
             ISolid intersectedSolid = intersection.solid;
 
             bool isInsideSolid = false;
