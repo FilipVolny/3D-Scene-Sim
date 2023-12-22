@@ -393,16 +393,12 @@ namespace rt004
 
             Matrix4d invTrans = intersection.invertedTransformationMatrix; //inverted transformation matrix
 
-            //does the ray need to be transformed?
-            //Ray transformedRay = ray.TransformRay(intersection.invertedTransformationMatrix);
-            //ray = transformedRay;
             ISolid intersectedSolid = intersection.solid;
 
             bool isInsideSolid = false;
             if (intersectedSolid == ray.OriginSolid) { isInsideSolid = true; }
 
-            /*TODO 21.12. check the intersectedPoint computation
-             * Thought: for the intersectedPoint computation, the ray should NOT be transformed
+            /*TODO 22.12. check the intersectedPoint computation
              * Thought: when computing ray-solid intersection in the ThrowRay func, the transformed ray direction
              * does not have to be normalized, and the output 't' is the correct lenght in worldspace.
              * There might be some troubles in the solidIntersection functions, mainly is they compute the intersection using angles.
@@ -415,27 +411,26 @@ namespace rt004
             //transform normal
             Matrix4d transposedInvTrans = Matrix4d.Transpose(invTrans);
 
-            Vector4d tmpTransformedIntersectedPoint = new Vector4d(intersectedPoint, 1);
+            Vector4d tmpTransformedIntersectedPoint = new(intersectedPoint, 1);
             tmpTransformedIntersectedPoint = invTrans * tmpTransformedIntersectedPoint;
 
             Vector3d transformedIntersectedPoint = tmpTransformedIntersectedPoint.Xyz;
 
-            Vector4d tmpNormal = new Vector4d(intersectedSolid.GetNormal(transformedIntersectedPoint, isInsideSolid), 0);
-            tmpNormal = (tmpNormal * transposedInvTrans);
-
+            Vector4d tmpNormal = new(intersectedSolid.GetNormal(transformedIntersectedPoint, isInsideSolid), 0);
+            tmpNormal *= transposedInvTrans;
+            
             Vector3d normal = tmpNormal.Xyz.Normalized();
 
             foreach (ILightSource light in scene.LightSources)
             {
-                color += ComputeHierarchy(scene, intersectedSolid, intersectedPoint, isInsideSolid, normal, ray, sampleSize);//ambient coeffient should be given 
+                color += ComputeHierarchy(scene, intersectedSolid, intersectedPoint, isInsideSolid, normal, ray, sampleSize);
             }
 
             if (depth > maxdepth)
             {
                 return color;
             }
-            //this till the return color probably doesnt work? idk was commented
-            /*
+            
             //reflection
             Vector3d reflectionColor = default;
             if (intersectedSolid.Material.SpecularCoefficient > 0)
@@ -447,17 +442,16 @@ namespace rt004
             //refraction
             Vector3d refractionColor = default;
             double originRefractiveIndex;
-            if (ray.OriginSolid != null) { originRefractiveIndex = ray.OriginSolid.Material.RefractiveIndex; }
+            if (ray.OriginSolid is not null) { originRefractiveIndex = ray.OriginSolid.Material.RefractiveIndex; }
             else { originRefractiveIndex = 1; }
 
             double intersectedSolidRefractiveIndex;
-            if (ray.OriginSolid != null) { intersectedSolidRefractiveIndex = ray.OriginSolid.Material.RefractiveIndex; }
+            if (ray.OriginSolid is not null) { intersectedSolidRefractiveIndex = ray.OriginSolid.Material.RefractiveIndex; }
             else { intersectedSolidRefractiveIndex = intersectedSolid.Material.RefractiveIndex; }
 
             double kR = originRefractiveIndex / intersectedSolidRefractiveIndex; //refractive coeficient
 
-            Vector3d normalVector = -normal; //redundant, refactor later
-            double normalRayDotProduct = Vector3d.Dot(normalVector, -ray.Direction);
+            double normalRayDotProduct = Vector3d.Dot((-normal), -ray.Direction);
 
             double refractiveVectorAngleCosine = Math.Sqrt(1 - (kR * kR) * (1 - (normalRayDotProduct * normalRayDotProduct)));
 
@@ -467,14 +461,14 @@ namespace rt004
             }
             else
             {
-                Vector3d refractiveVector = (kR * normalRayDotProduct - refractiveVectorAngleCosine) * normalVector - kR * (-ray.Direction);
+                Vector3d refractiveVector = (kR * normalRayDotProduct - refractiveVectorAngleCosine) * (-normal) - kR * (-ray.Direction);
                 Ray refractedRay = new(intersectedPoint, refractiveVector, intersectedSolid);
 
                 refractionColor += ShadeHierarchy(scene, refractedRay, depth + 1, sampleSize, maxdepth);
             }
 
             color += (reflectionColor * (1 - intersectedSolid.Material.Transparency)) + (refractionColor * intersectedSolid.Material.Transparency);
-            */
+            
             return color;
             
         }
