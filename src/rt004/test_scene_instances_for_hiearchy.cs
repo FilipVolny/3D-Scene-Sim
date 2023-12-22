@@ -15,6 +15,10 @@ namespace rt004
 
     public class TestScenes
     {
+        //this should've been in .gitIgnore
+
+        public int nhThrowRaySucces;
+        public int hThrowRaySucces;
         public Scene nhs1;
         public Scene? nhs2;
         public Scene? nhs3;
