@@ -402,7 +402,8 @@ namespace rt004
              * Thought: when computing ray-solid intersection in the ThrowRay func, the transformed ray direction
              * does not have to be normalized, and the output 't' is the correct lenght in worldspace.
              * There might be some troubles in the solidIntersection functions, mainly is they compute the intersection using angles.
-             * Not sure how it affects it, for now we will NOT normalize the direction. 
+             * Not sure how it affects it, for now we will NOT normalize the direction.
+             * SOMETHING IS WRONG WHEN COMPUTING THE COLORS OF ROTATIONS
              */
 
             Vector3d intersectedPoint = (Vector3d)(ray.Origin + (intersection.rayLenght * ray.Direction));
