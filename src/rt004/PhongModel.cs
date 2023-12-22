@@ -252,7 +252,7 @@ namespace rt004
 
             foreach (ILightSource light in scene.LightSources)
             {
-                color += Compute(scene.LightSources, intersectedSolid, scene.Solids, intersectedPoint, ray, 0.2);//ambient coeffient should be given 
+                color += Compute(scene.LightSources, intersectedSolid, scene.Solids, intersectedPoint, ray, scene.AmbientCoefficient);
             }
 
             if (depth > maxdepth)
