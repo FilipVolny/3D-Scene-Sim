@@ -401,6 +401,14 @@ namespace rt004
             bool isInsideSolid = false;
             if (intersectedSolid == ray.OriginSolid) { isInsideSolid = true; }
 
+            /*TODO 21.12. check the intersectedPoint computation
+             * Thought: for the intersectedPoint computation, the ray should NOT be transformed
+             * Thought: when computing ray-solid intersection in the ThrowRay func, the transformed ray direction
+             * does not have to be normalized, and the output 't' is the correct lenght in worldspace.
+             * There might be some troubles in the solidIntersection functions, mainly is they compute the intersection using angles.
+             * Not sure how it affects it, for now we will NOT normalize the direction. 
+             */
+
             Vector3d intersectedPoint = (Vector3d)(ray.Origin + (intersection.rayLenght * ray.Direction));
             Vector3d color = new(0,0,0); //result color
             
