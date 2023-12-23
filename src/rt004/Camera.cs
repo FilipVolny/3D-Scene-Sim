@@ -41,6 +41,7 @@ namespace rt004
             return ray;
         }
         */
+        //this is a comment
         /// <summary>
         /// Casts a single ray from 
         /// </summary>
