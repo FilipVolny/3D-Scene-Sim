@@ -363,7 +363,7 @@ namespace rt004
                 //diffuse component
                 double dotDiffusion = Vector3d.Dot(directionToLight, normal);
                 Vector3d Ed = lightSource.Intensity * intersectedSolid.Material.Colour(intersectedSolid.GetUVCoords(intersectionPoint, isInsideSolid)) * intersectedSolid.Material.DiffusionCoefficient * (dotDiffusion > -1.0e-6 ? dotDiffusion : 0); ;
-
+                
                 //specular component
                 double dotReflection = Vector3d.Dot((2 * normal * Vector3d.Dot(normal, directionToLight) - directionToLight).Normalized(), ray.Direction);
                 Vector3d Es = lightSource.Intensity * lightSource.Color * intersectedSolid.Material.SpecularCoefficient * Math.Pow((dotReflection > 0 ? dotReflection : 0), intersectedSolid.Material.Glossiness);
@@ -375,9 +375,7 @@ namespace rt004
                         success++;
                     }
                 }
-                //Ea += (Ed + Es) * success / shadowRayNum;
-                               //shadows are off
-                Ea += (Ed + Es); //delete this later, when you want to uncomment shadows
+                Ea += (Ed + Es) * success / shadowRayNum;
             }
             return Ea;
         }
@@ -418,7 +416,7 @@ namespace rt004
             Vector3d transformedIntersectedPoint = tmpTransformedIntersectedPoint.Xyz;
 
             Vector4d tmpNormal = new(intersectedSolid.GetNormal(transformedIntersectedPoint, isInsideSolid), 0);
-            tmpNormal *= transposedInvTrans;
+            tmpNormal = transposedInvTrans * tmpNormal;
             
             Vector3d normal = tmpNormal.Xyz.Normalized();
 
