@@ -308,7 +308,39 @@ namespace rt004
         /// <param name="light"></param>
         /// <param name="intersectedSolid"></param>
         /// <returns> True if there is a solid blocking the ray from the intersectionPoint</returns>
+        public static bool ShadowHierarchy(Vector3d intersectionPoint, ILightSource light, Node root, ISolid intersectedSolid)
+        {
+            bool intersects = false;
+            Ray shadowRay = new(intersectionPoint, light.DirectionToLight(intersectionPoint), intersectedSolid);
 
+            _checkShadowRecursiveHierarchy(ref intersects, intersectedSolid, shadowRay, root, Matrix4d.Identity, 0);
+
+            return intersects;
+        }
+        //TODO Read about passing as reference and its keywords. Check how it affects performance with profiling tools.
+        private static void _checkShadowRecursiveHierarchy(ref bool intersects, ISolid intersectedSolid,
+            Ray shadowRay, Node node, Matrix4d currentTransformation, int dbgLayer)
+        {
+            currentTransformation = currentTransformation * node.TransformationMatrixInverse;
+
+            Ray transformedShadowRay = shadowRay.TransformRay(currentTransformation);
+
+            if (node.Solid != intersectedSolid && node.Solid is not null)
+            {
+                double? tmpT = node.Solid.Intersection(transformedShadowRay);
+                if (tmpT is not null)
+                {
+                    intersects = true;
+                    return;
+                }
+            }
+
+            foreach (var child in node.Nodes)
+            {
+                _checkShadowRecursiveHierarchy(ref intersects, intersectedSolid, shadowRay, child, currentTransformation, ++dbgLayer);
+            }
+        }
+        /*
         public static bool ShadowHierarchy(Vector3d intersectionPoint, ILightSource light, Node intersectedSolid)
         {
             bool intersects = false;
@@ -370,7 +402,7 @@ namespace rt004
                 
                 for (int i = 0; i < shadowRayNum; i++)
                 {
-                    if (!ShadowHierarchy(intersectionPoint, lightSource, scene.Root))
+                    if (!ShadowHierarchy(intersectionPoint, lightSource, scene.Root, intersectedSolid))
                     {
                         success++;
                     }
