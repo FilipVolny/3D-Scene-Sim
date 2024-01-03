@@ -1,5 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using rt004.Solids;
+using System.ComponentModel.Design.Serialization;
+using System.Security.Cryptography;
 
 namespace rt004
 {
@@ -95,7 +97,7 @@ namespace rt004
             }
             return result;
         }
-        
+
         /*
         public static (ISolid?, double?) ThrowRay(Ray ray, Node node)
         {
@@ -176,12 +178,12 @@ namespace rt004
             return closestSolid;
         }
         */
-        
+
         public static Vector3d Compute(List<ILightSource> lightSources, ISolid intersectedSolid,
             List<ISolid> solidsInScene, Vector3d intersectionPoint, Ray ray, double ambientCoeficient)
         {
             bool isInsideSolid = false;
-            if( intersectedSolid == ray.OriginSolid ) { isInsideSolid = true; }
+            if (intersectedSolid == ray.OriginSolid) { isInsideSolid = true; }
 
             //ambient light
             Vector3d Ea = intersectedSolid.Material.Colour(intersectedSolid.GetUVCoords(intersectionPoint, isInsideSolid)) * ambientCoeficient;
@@ -191,18 +193,18 @@ namespace rt004
             foreach (ILightSource lightSource in lightSources)
             {
                 int success = 0;
-                int shadowRayNum = 10; //parametrize l8r b8r
+                int shadowRayNum = 1; //parametrize l8r b8r
 
                 Vector3d directionToLight = -lightSource.DirectionToLight(intersectionPoint); //
                 //diffuse component
                 double dotDiffusion = Vector3d.Dot(directionToLight, normal);
-                Vector3d Ed = lightSource.Intensity * intersectedSolid.Material.Colour(intersectedSolid.GetUVCoords(intersectionPoint, isInsideSolid))* intersectedSolid.Material.DiffusionCoefficient * (dotDiffusion > -1.0e-6 ? dotDiffusion : 0); ;
+                Vector3d Ed = lightSource.Intensity * intersectedSolid.Material.Colour(intersectedSolid.GetUVCoords(intersectionPoint, isInsideSolid)) * intersectedSolid.Material.DiffusionCoefficient * (dotDiffusion > -1.0e-6 ? dotDiffusion : 0); ;
 
                 //specular component
                 double dotReflection = Vector3d.Dot((2 * normal * Vector3d.Dot(normal, directionToLight) - directionToLight).Normalized(), ray.Direction);
                 Vector3d Es = lightSource.Intensity * lightSource.Color * intersectedSolid.Material.SpecularCoefficient * Math.Pow((dotReflection > 0 ? dotReflection : 0), intersectedSolid.Material.Glossiness);
 
-                for(int i = 0; i < shadowRayNum; i++)
+                for (int i = 0; i < shadowRayNum; i++)
                 {
                     if (!Shadow(intersectedSolid, intersectionPoint, lightSource, solidsInScene))
                     {
@@ -214,7 +216,7 @@ namespace rt004
 
             return Ea;
         }
-        
+
         public static bool Shadow(ISolid sourceSolid, Vector3d point, ILightSource light, List<ISolid> solids) //directional light
         {
             bool intersects = false;
@@ -232,7 +234,7 @@ namespace rt004
             }
             return intersects;
         }
-        
+
         public static Vector3d Shade(Scene scene, Ray ray, int depth, int maxdepth)
         {
 
@@ -300,7 +302,7 @@ namespace rt004
 
             return color;
         }
-        
+
         /// <summary>
         /// Checks if there is a solid blocking a r ILighSource
         /// </summary>
@@ -356,14 +358,14 @@ namespace rt004
 
         private static void _checkShadowRecursiveHierarchy(ref bool intersects, Node sourceSolid, Node solid, Ray shadowRay)
         {
-            if(intersects == true)
+            if (intersects == true)
             {
                 return;
             }
 
             if (solid.Solid is not null)
             {
-                if(solid != sourceSolid)
+                if (solid != sourceSolid)
                 {
                     double? intersection = solid.Solid.Intersection(shadowRay);
                     if (intersection is not null)
@@ -379,7 +381,7 @@ namespace rt004
                 _checkShadowRecursiveHierarchy(ref intersects, sourceSolid, sol, shadowRay);
             }
         }
-        
+        */
         public static Vector3d ComputeHierarchy(Scene scene, ISolid intersectedSolid,
             Vector3d intersectionPoint, bool isInsideSolid, Vector3d normal, Ray ray, int sampleSize)
         {
@@ -395,11 +397,11 @@ namespace rt004
                 //diffuse component
                 double dotDiffusion = Vector3d.Dot(directionToLight, normal);
                 Vector3d Ed = lightSource.Intensity * intersectedSolid.Material.Colour(intersectedSolid.GetUVCoords(intersectionPoint, isInsideSolid)) * intersectedSolid.Material.DiffusionCoefficient * (dotDiffusion > -1.0e-6 ? dotDiffusion : 0); ;
-                
+
                 //specular component
                 double dotReflection = Vector3d.Dot((2 * normal * Vector3d.Dot(normal, directionToLight) - directionToLight).Normalized(), ray.Direction);
                 Vector3d Es = lightSource.Intensity * lightSource.Color * intersectedSolid.Material.SpecularCoefficient * Math.Pow((dotReflection > 0 ? dotReflection : 0), intersectedSolid.Material.Glossiness);
-                
+
                 for (int i = 0; i < shadowRayNum; i++)
                 {
                     if (!ShadowHierarchy(intersectionPoint, lightSource, scene.Root, intersectedSolid))
@@ -411,8 +413,8 @@ namespace rt004
             }
             return Ea;
         }
-        
-        public static Vector3d ShadeHierarchy(Scene scene, Ray ray, int depth, int sampleSize, int maxdepth) 
+
+        public static Vector3d ShadeHierarchy(Scene scene, Ray ray, int depth, int sampleSize, int maxdepth)
         {
 
             (ISolid? solid, double? rayLenght, Matrix4d invertedTransformationMatrix) intersection = Phong.ThrowRayHierarchy(ray, scene.Root);
@@ -433,8 +435,7 @@ namespace rt004
              * does not have to be normalized, and the output 't' is the correct lenght in worldspace.
              * There might be some troubles in the solidIntersection functions, mainly is they compute the intersection using angles.
              * Not sure how it affects it, for now we will NOT normalize the direction.
-             * SOMETHING IS WRONG WHEN COMPUTING THE COLORS OF ROTATIONS
-             */
+             */ //Should be solved
 
             Vector3d intersectedPoint = (Vector3d)(ray.Origin + (intersection.rayLenght * ray.Direction));
             Vector3d color = default; //result color
@@ -449,7 +450,7 @@ namespace rt004
 
             Vector4d tmpNormal = new(intersectedSolid.GetNormal(transformedIntersectedPoint, isInsideSolid), 0);
             tmpNormal = transposedInvTrans * tmpNormal;
-            
+
             Vector3d normal = tmpNormal.Xyz.Normalized();
 
             foreach (ILightSource light in scene.LightSources)
@@ -461,7 +462,7 @@ namespace rt004
             {
                 return color;
             }
-            
+
             //reflection
             Vector3d reflectionColor = default;
             if (intersectedSolid.Material.SpecularCoefficient > 0)
@@ -469,7 +470,7 @@ namespace rt004
                 Vector3d reflectionVector = 2 * Vector3d.Dot(normal, -(ray.Direction)) * normal + ray.Direction;
                 reflectionColor += intersectedSolid.Material.SpecularCoefficient * ShadeHierarchy(scene, new Ray(intersectedPoint, reflectionVector, ray.OriginSolid), depth + 1, sampleSize, maxdepth);
             }
-            
+
             //refraction
             Vector3d refractionColor = default;
             double originRefractiveIndex;
@@ -499,9 +500,9 @@ namespace rt004
             }
 
             color += (reflectionColor * (1 - intersectedSolid.Material.Transparency)) + (refractionColor * intersectedSolid.Material.Transparency);
-            
+
             return color;
-            
+
         }
     }
 }
