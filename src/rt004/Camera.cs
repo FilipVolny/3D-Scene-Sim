@@ -4,23 +4,57 @@ using rt004.Solids;
 //todo line 43,39, its written there what needs to be done
 namespace rt004
 {
+    /// <summary>
+    /// A camera for a 3D scene.
+    /// </summary>
     public class Camera
     {
+        /// <summary>
+        /// The origin point of the camera in a 3D space.
+        /// </summary>
         Vector3d Origin { get; }
+
+        /// <summary>
+        /// The direction the camera is facing in a 3D space.
+        /// </summary>
         Vector3d ForwardDirection { get; }
+
+        /// <summary>
+        /// The rotation of the cameras view in 3D space.
+        /// </summary>
         double Rotation { get; }
+
+        /// <summary>
+        /// The direction the top of the camera is facing in 3D space.
+        /// </summary>
         private Vector3d UpDirection { get; }
+
+        /// <summary>
+        /// The direction the right side of the camera is facing in 3D space.
+        /// </summary>
         private Vector3d RightDirection { get; }
 
-        double Height { get; }
-        double Width { get; }
-        int MaxRayTracingDepth { get; set; }
         /// <summary>
-        /// Constructor for the Camera object
+        /// Vertical fov of the camera.
         /// </summary>
-        /// <param name="origin">Point in 3d space, where the camera is placed. Given by a Vector3d.</param>
-        /// <param name="forwardDirection">Camera forward facing direction. Given by a Vector3d.</param>
-        /// <param name="rotation">Camera rotation. Given by a double. </param>
+        double Height { get; }
+
+        /// <summary>
+        /// Horizontal fov of the camera.
+        /// </summary>
+        double Width { get; }
+
+        /// <summary>
+        /// Maximum number of bounces for a ray.
+        /// </summary>
+        int MaxRayTracingDepth { get; set; }
+
+        /// <summary>
+        /// Constructor for the Camera object used in a 3D scene.
+        /// </summary>
+        /// <param name="origin">Origin point of the Camera object in a 3D scene.</param>
+        /// <param name="forwardDirection">The direction the Camera is facing.</param>
+        /// <param name="rotation">The rotation of the </param>
         /// <param name="width"></param>
         /// <param name="height"></param>
         public Camera(Vector3d origin, Vector3d forwardDirection, double rotation, double width, double height)
@@ -34,16 +68,9 @@ namespace rt004
             Width = width;
             MaxRayTracingDepth = 10; //10
         }
-        /*
-        private Ray _getRayFromCamera(int x, int y, int pixelWidth, int pixelHeight) //redundant
-        {
-            Ray ray = new(Origin, (ForwardDirection + (x - pixelWidth / 2) * (Width / pixelWidth) * RightDirection + (y - pixelHeight / 2) * (Height / pixelHeight) * UpDirection).Normalized(), null); //todo, what if the camera is inside a solid
-            return ray;
-        }
-        */
-        //this is a comment
+
         /// <summary>
-        /// Casts a single ray from 
+        /// Creates an instance of a Ray in a particular direction.
         /// </summary>
         /// <param name="pixelWidth">Which column of pixels is used to cast the ray</param>
         /// <param name="pixelHeight"></param>
@@ -80,7 +107,16 @@ namespace rt004
         }
         */
         
-        public Vector3d[,] ParallelRayCast(Scene scene, int sampleSize, int pixelWidth, int pixelHeight) //Yes Anti-aliasing
+        /// <summary>
+        /// Creates a grid of pixels and computes color in Vector3d for each of them from a 3D scene. Utilizes anti-aliasing.
+        /// </summary>
+        /// <param name="scene"></param>
+        /// <param name="sampleSize"></param>
+        /// <param name="pixelWidth"></param>
+        /// <param name="pixelHeight"></param>
+        /// <returns> Vector3d matrix of colors. </returns>
+        /// <remarks> Utilizes multiple CPUs. </remarks>
+        public Vector3d[,] ParallelRayCast(Scene scene, int sampleSize, int pixelWidth, int pixelHeight)
         {
             int numberOfAvailableProcessors = Environment.ProcessorCount - 1;
             Random rnd = new();
@@ -109,7 +145,7 @@ namespace rt004
                             Ray ray = _getRayFromCameraAntiAliasing(pixelWidth, pixelHeight, xPart, yPart);
 
                             (ISolid?, double?) intersection = Phong.ThrowRay(ray, scene.Solids);
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
                             color += Phong.Shade(scene, ray, 0, MaxRayTracingDepth) ;
                         }
                         pixels[x, y] = color / sampleSize;
@@ -119,11 +155,14 @@ namespace rt004
             return pixels;
         }
 
-
-        /////////////////////
-        /////////////////////
-
-        //a version of ParallelRayCast that uses hiearchical order of solids
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="scene"></param>
+        /// <param name="sampleSize"></param>
+        /// <param name="pixelWidth"></param>
+        /// <param name="pixelHeight"></param>
+        /// <returns></returns>
         public Vector3d[,] ParallelRayCastHierarchy(Scene scene, int sampleSize, int pixelWidth, int pixelHeight) //Yes Anti-aliasing
         {
             int numberOfAvailableProcessors = Environment.ProcessorCount - 1;
